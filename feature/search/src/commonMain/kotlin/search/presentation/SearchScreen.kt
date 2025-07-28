@@ -15,11 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.gameZone.models.Movie
+import compose.icons.FeatherIcons
 import compose.icons.FontAwesomeIcons
+import compose.icons.feathericons.AlertCircle
+import compose.icons.feathericons.ArrowLeft
+import compose.icons.feathericons.X
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Backward
 import compose.icons.fontawesomeicons.solid.Search
@@ -78,8 +83,8 @@ private fun SearchScreen(
             // --- Search Bar
             SearchBar(
                 query = uiState.query,
-                onQueryChange = { onSearchQueryChange(it)},
-                onClearQuery = { onSearchCleared()}
+                onQueryChange = { onSearchQueryChange(it) },
+                onClearQuery = { onSearchCleared() }
             )
 
             Spacer(Modifier.height(16.dp))
@@ -114,11 +119,17 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, onClearQuery: () -
     TextField(
         value = query,
         onValueChange = onQueryChange,
-        leadingIcon = { Icon(FontAwesomeIcons.Solid.Search, contentDescription = "Search", modifier = Modifier.size(30.dp)) },
+        leadingIcon = {
+            Icon(
+                FontAwesomeIcons.Solid.Search,
+                contentDescription = "Search",
+                modifier = Modifier.size(30.dp)
+            )
+        },
         trailingIcon = {
             if (query.isNotEmpty()) {
                 IconButton(onClick = onClearQuery) {
-                    Icon(FontAwesomeIcons.Solid.SearchMinus, contentDescription = "Clear")
+                    Icon(FeatherIcons.X, contentDescription = "Clear")
                 }
             }
         },
@@ -207,7 +218,18 @@ fun NoResultsScreen() {
         Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text("No movies found", color = Color.Gray)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = FeatherIcons.AlertCircle,
+                contentDescription = "Not Found",
+                modifier = Modifier.size(200.dp)
+            )
+            Text("No movies found", color = Color.Gray)
+        }
     }
 }
 
@@ -215,7 +237,8 @@ fun NoResultsScreen() {
 @Composable
 fun SearchScreenPreview() {
 
-SearchScreen(uiState = SearchUiState(
-    query= "asd"
-),{},{}) {  }
+    SearchScreen(
+        uiState = SearchUiState(
+            query = "asd"
+        ), {}, {}) { }
 }

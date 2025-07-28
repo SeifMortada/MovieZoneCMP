@@ -31,7 +31,7 @@ import search.navigation.SearchNav
 
 sealed class Item(val icon: DrawableResource, val title: String, val route: Any) {
     data object Home : Item(Res.drawable.ic_home, "Home", HomeNavigation)
-    data object Search : Item(Res.drawable.ic_search, "Search",SearchNav)
+    data object Search : Item(Res.drawable.ic_search, "Search", SearchNav)
     data object Details : Item(Res.drawable.ic_add, "Details", DetailsNav)
 }
 
@@ -61,8 +61,8 @@ fun App() {
                                 )
                             },
                             //  label = { Text(it.title) },
-                            selected = true,
-                            onClick =  {
+                            selected = currentRoute == it.route,
+                            onClick = {
                                 if (currentRoute != it.route) {
                                     navHost.navigate(it.route) {
                                         popUpTo(navHost.graph.startDestinationId) {
@@ -74,8 +74,8 @@ fun App() {
                                 }
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = MaterialTheme.colorScheme.onBackground,
-                                unselectedIconColor = Color(0xFF9EB8A8),
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                unselectedIconColor = Color.White,
                                 selectedTextColor = MaterialTheme.colorScheme.onBackground,
                                 unselectedTextColor = Color(0xFF9EB8A8),
                                 indicatorColor = Color.Transparent
