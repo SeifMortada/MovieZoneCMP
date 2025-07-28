@@ -1,4 +1,4 @@
-package com.gameZone.usecase
+package home.domain.usecase
 
 import com.gameZone.repository.MoviesRepository
 

@@ -1,6 +1,6 @@
 package home
 
-import androidx.compose.foundation.layout.Arrangement
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,71 +24,120 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.R
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gameZone.models.Movie
+import com.gameZone.models.TvShow
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeRoute(
-    viewModel: HomeViewModel = koinViewModel()
+    viewModel: HomeViewModel = koinViewModel(),
+    onMovieClick: (Int) -> Unit,
+    paddingValues: PaddingValues
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-    HomeScreen(uiState)
+    HomeScreen(uiState,onMovieClick,paddingValues)
 
 }
 
 @Composable
 fun HomeScreen(
-    state: HomeUiState
+    state: HomeUiState,
+    onMovieClick: (Int) -> Unit,
+    paddingValues: PaddingValues
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .background(MaterialTheme.colorScheme.background)
+            .padding(paddingValues),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (state) {
-            is HomeUiState.Error -> {
+        when {
+            state.error != null -> {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    Text(state.message)
+                    Text(state.error)
                 }
             }
 
-            HomeUiState.Idle -> Unit
-            HomeUiState.Loading -> CircularProgressIndicator()
-            is HomeUiState.Success -> {
-                Text(
-                    text = "Popular movies",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                )
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp)
-                ) {
-                    items(state.popularMovies) {
-                        PopularMovieCard(it)
-                        Spacer(Modifier.width(12.dp))
-                    }
+            state.isLoading -> CircularProgressIndicator()
+
+            else -> {
+                HomeContent(state,onMovieClick)
+            }
+        }
+    }
+}
+
+@Composable
+fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit){
+    LazyColumn {
+        item {
+            Text(
+                text = "Popular movies",
+                color = Color.White,
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+        }
+        item {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)
+            ) {
+                items(state.popularMovies) {
+                    PopularMovieCard(it,onMovieClick)
+                    Spacer(Modifier.width(12.dp))
                 }
-                // Title under the popular movies, for future Now Playing movies section
-                Text(
-                    text = "Now Playing",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                )
-                // TODO: Implement LazyRow for Now Playing movies here, similar to popularMovies
+            }
+        }
+        // Title under the popular movies, for future Now Playing movies section
+        item {
+            Text(
+                text = "Top Rated movies",
+                color = Color.White,
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+        }
+        item {
+            LazyRow {
+                items(state.topRatedMovies) {
+                    PopularMovieCard(it,onMovieClick)
+                    Spacer(Modifier.width(12.dp))
+                }
+            }
+        }
+        item {
+            Text(
+                text = "Popular TV Shows",
+                color = Color.White,
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+            LazyRow {
+                items(state.popularTvShows) {
+                    PopularTvShowCard(it)
+                    Spacer(Modifier.width(12.dp))
+                }
             }
         }
     }
@@ -96,12 +145,14 @@ fun HomeScreen(
 
 @Composable
 fun PopularMovieCard(
-    movie: Movie
+    movie: Movie,
+    onClick: (Int) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
             .width(140.dp)
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable { onClick(movie.id) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         MovieImage(movie.posterPath)
@@ -120,12 +171,39 @@ fun PopularMovieCard(
     }
 }
 
+@Composable
+fun PopularTvShowCard(
+    tvShow: TvShow
+) {
+    Column(
+        modifier = Modifier
+            .width(140.dp)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        MovieImage(tvShow.posterPath)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = tvShow.name,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(Modifier.height(4.dp))
+        MediumWhiteText(tvShow.overview, maxLines = 3)
+        Spacer(Modifier.height(12.dp))
+        SmallMagentaText(tvShow.firstAirDate)
+        Spacer(Modifier.height(4.dp))
+        SmallMagentaText(tvShow.originalLanguage.toString())
+    }
+}
 
 @Composable
 fun SmallMagentaText(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.headlineSmall,
+        style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.primary
     )
 }

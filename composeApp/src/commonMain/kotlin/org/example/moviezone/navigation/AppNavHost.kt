@@ -1,18 +1,33 @@
 package org.example.moviezone.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import home.HomeRoute
+import details.navigation.DetailsNav
+import details.navigation.detailsScreen
+import home.navigation.HomeNavigation
+import home.navigation.homeScreen
+import search.navigation.searchScreen
 
 @Composable
-fun AppNavHost() {
-    val navHostController = rememberNavController()
-    NavHost(navHostController, startDestination = Dest.Home) {
-        composable<Dest.Home> {
-            HomeRoute()
+fun AppNavHost(
+    navHostController: NavHostController = rememberNavController(),
+    paddingValues: PaddingValues = PaddingValues()
+) {
+    NavHost(navHostController, startDestination = HomeNavigation) {
+        homeScreen(
+            paddingValues = paddingValues,
+            onMovieClick = { movieId ->
+                navHostController.navigate(DetailsNav(movieId))
+            }
+        )
+        detailsScreen {
+            navHostController.popBackStack()
         }
-
+        searchScreen {
+            navHostController.popBackStack()
+        }
     }
 }

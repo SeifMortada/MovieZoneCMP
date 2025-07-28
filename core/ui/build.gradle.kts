@@ -4,11 +4,10 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
-    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -18,7 +17,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -29,12 +28,12 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     jvm("desktop")
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -49,19 +48,13 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
-            //navigation
-            implementation(libs.navigation.compose)
+            // Coil
+            implementation(libs.coil)
+            implementation(libs.coil.ktor)
 
-            //koin
-            implementation(libs.koin.core)
+            // common ui libs
+            api(libs.bundles.compose.icons)
 
-            //Modules
-            implementation(projects.core.network)
-            implementation(projects.core.database)
-            implementation(projects.core.domain)
-            implementation(projects.feature.home)
-            implementation(projects.feature.details)
-            implementation(projects.feature.search)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -74,15 +67,12 @@ kotlin {
 }
 
 android {
-    namespace = "org.example.moviezone"
+    namespace = "org.example.project.core.ui"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "org.example.moviezone"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
     }
     packaging {
         resources {
@@ -106,11 +96,10 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "org.example.moviezone.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.example.moviezone"
+            packageName = "org.example.project.core.ui"
             packageVersion = "1.0.0"
         }
     }

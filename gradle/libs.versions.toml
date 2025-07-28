@@ -20,6 +20,8 @@ koin = "4.0.3"
 ktor = "3.0.3"
 sqldelight = "2.0.1"
 composeNavigation="2.9.0-beta01"
+material-icons = "1.5.4"
+composeIcons = "1.1.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -53,12 +55,26 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.8.0" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "composeNavigation" }
 
+material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "material-icons" }
+material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "material-icons" }
+
 
 sql-delight-common = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
 sql-delight-common-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sql-delight-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 sql-delight-ios = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
 sql-delight-desktop = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+
+composeIcons-cssGg = { module = "br.com.devsrsouza.compose.icons:css-gg", version.ref = "composeIcons" }
+composeIcons-weatherIcons = { module = "br.com.devsrsouza.compose.icons:erikflowers-weather-icons", version.ref = "composeIcons" }
+composeIcons-evaIcons = { module = "br.com.devsrsouza.compose.icons:eva-icons", version.ref = "composeIcons" }
+composeIcons-feather = { module = "br.com.devsrsouza.compose.icons:feather", version.ref = "composeIcons" }
+composeIcons-fontAwesome = { module = "br.com.devsrsouza.compose.icons:font-awesome", version.ref = "composeIcons" }
+composeIcons-lineAwesome = { module = "br.com.devsrsouza.compose.icons:line-awesome", version.ref = "composeIcons" }
+composeIcons-linea = { module = "br.com.devsrsouza.compose.icons:linea", version.ref = "composeIcons" }
+composeIcons-octicons = { module = "br.com.devsrsouza.compose.icons:octicons", version.ref = "composeIcons" }
+composeIcons-simpleIcons = { module = "br.com.devsrsouza.compose.icons:simple-icons", version.ref = "composeIcons" }
+composeIcons-tablerIcons = { module = "br.com.devsrsouza.compose.icons:tabler-icons", version.ref = "composeIcons" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -71,3 +87,17 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "1.9.0" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 sql-delight={id = "app.cash.sqldelight", version.ref = "sqldelight"}
+
+[bundles]
+compose-icons=[
+    "composeIcons-cssGg",
+    "composeIcons-weatherIcons",
+    "composeIcons-evaIcons",
+    "composeIcons-feather",
+    "composeIcons-fontAwesome",
+    "composeIcons-lineAwesome",
+    "composeIcons-linea",
+    "composeIcons-octicons",
+    "composeIcons-simpleIcons",
+    "composeIcons-tablerIcons",
+]

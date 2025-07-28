@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -49,11 +50,17 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             // Modules
             implementation(projects.core.domain)
+            implementation(projects.core.ui)
 
+            // koin
             implementation(libs.koin.compose.viewmodel)
 
+            // Coil
             implementation(libs.coil)
             implementation(libs.coil.ktor)
+
+            //navigation
+            implementation(libs.navigation.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
