@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.gamezone.ui.theme.MovieZoneTheme
 import details.navigation.DetailsNav
 import home.navigation.HomeNavigation
 import moviezone.composeapp.generated.resources.Res
@@ -23,7 +24,6 @@ import moviezone.composeapp.generated.resources.ic_add
 import moviezone.composeapp.generated.resources.ic_home
 import moviezone.composeapp.generated.resources.ic_search
 import org.example.moviezone.navigation.AppNavHost
-import org.example.moviezone.theme.MovieZoneTheme
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview

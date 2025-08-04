@@ -1,4 +1,4 @@
-package org.example.moviezone.theme
+package com.gamezone.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

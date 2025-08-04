@@ -128,7 +128,7 @@ fun MovieContent(
             .background(colors.background)
     ) {
         item {
-            CollapsibleImage(imageUrl = details.imageUrl, title = details.title)
+            CollapsibleImage(imageUrl = details.imageUrl)
         }
         item { Spacer(Modifier.height(16.dp)) }
         item { MovieOverviewSection(details.overview) }
@@ -149,46 +149,41 @@ fun MovieContent(
 }
 
 @Composable
-fun CollapsibleImage(imageUrl: String?, title: String) {
-    val colors = MaterialTheme.colorScheme
+fun CollapsibleImage(imageUrl: String?) {
+    val initial = Color(0xFF1B1B1B)
+    var backgroundColor by remember { mutableStateOf(initial) }
+    val context = androidContextOrNull()
+
+    LaunchedEffect(imageUrl) {
+        extractDominantColor(imageUrl, context)?.let {
+            backgroundColor = it
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(240.dp)
-            .background(colors.surfaceVariant)
+            .height(300.dp)
+            .background(backgroundColor),
+        contentAlignment = Alignment.Center
     ) {
-        AsyncImage(
-            model = imageUrl,
-            contentScale = ContentScale.Crop,
-            contentDescription = title,
-            modifier = Modifier.fillMaxSize()
-        )
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            Color.Transparent,
-                            colors.surface.copy(alpha = 0.92f)
-                        ),
-                        startY = 150f
-                    )
-                )
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall.copy(color = colors.onSurface),
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(16.dp)
-                .background(
-                    color = colors.surface.copy(alpha = 0.62f),
-                    shape = RoundedCornerShape(6.dp)
-                )
-        )
+                .fillMaxHeight()
+                .aspectRatio(2f / 3f)
+                .clip(RoundedCornerShape(16.dp))
+        ) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = null,
+                contentScale = ContentScale.FillHeight,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
 }
+
+
 
 @Composable
 fun TopBackdropImage(imageUrl: String?, title: String) {

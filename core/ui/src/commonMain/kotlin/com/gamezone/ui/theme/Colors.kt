@@ -1,4 +1,4 @@
-package org.example.moviezone.theme
+package com.gamezone.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

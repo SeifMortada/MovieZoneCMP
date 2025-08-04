@@ -14,17 +14,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.gameZone.models.Movie
+import com.gamezone.ui.theme.MovieZoneTheme
 import compose.icons.FeatherIcons
 import compose.icons.FontAwesomeIcons
 import compose.icons.feathericons.AlertCircle
 import compose.icons.feathericons.ArrowLeft
 import compose.icons.feathericons.X
+import compose.icons.feathericons.XCircle
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Backward
 import compose.icons.fontawesomeicons.solid.Search
@@ -123,22 +126,34 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, onClearQuery: () -
             Icon(
                 FontAwesomeIcons.Solid.Search,
                 contentDescription = "Search",
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onBackground
             )
         },
         trailingIcon = {
             if (query.isNotEmpty()) {
                 IconButton(onClick = onClearQuery) {
-                    Icon(FeatherIcons.X, contentDescription = "Clear")
+                    Icon(FeatherIcons.XCircle, contentDescription = "Clear")
                 }
             }
         },
-        placeholder = { Text("Action") },
+        placeholder = { Text("Search for anything .") },
         shape = RoundedCornerShape(8.dp),
         singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            disabledContainerColor = MaterialTheme.colorScheme.surface,
+            errorContainerColor = MaterialTheme.colorScheme.surface,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color.Transparent,
+            cursorColor = MaterialTheme.colorScheme.primary
+        ),
     )
 }
 
@@ -226,7 +241,7 @@ fun NoResultsScreen() {
             Icon(
                 imageVector = FeatherIcons.AlertCircle,
                 contentDescription = "Not Found",
-                modifier = Modifier.size(200.dp)
+                modifier = Modifier.size(150.dp)
             )
             Text("No movies found", color = Color.Gray)
         }
@@ -236,9 +251,10 @@ fun NoResultsScreen() {
 @Preview()
 @Composable
 fun SearchScreenPreview() {
-
-    SearchScreen(
-        uiState = SearchUiState(
-            query = "asd"
-        ), {}, {}) { }
+    MovieZoneTheme(darkTheme = true) {
+        SearchScreen(
+            uiState = SearchUiState(
+                query = "asd"
+            ), {}, {}) { }
+    }
 }

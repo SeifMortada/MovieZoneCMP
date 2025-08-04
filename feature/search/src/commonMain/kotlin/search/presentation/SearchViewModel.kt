@@ -13,7 +13,7 @@ data class SearchUiState(
     val isLoading: Boolean = false,
     val query: String = "",
     val movies: List<Movie> = emptyList(),
-    val recentSearches: List<String> = emptyList(),
+    val recentSearches: List<String> = listOf("Test1","test 2 ","test 3"),
     val error: String? = null
 )
 

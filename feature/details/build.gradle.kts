@@ -41,6 +41,8 @@ kotlin {
 
             implementation(libs.material.icons.core)
             implementation(libs.material.icons.extended)
+
+            implementation ("androidx.palette:palette-ktx:1.0.0")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
