@@ -16,8 +16,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.gameZone.models.Movie
@@ -26,6 +29,7 @@ import compose.icons.FeatherIcons
 import compose.icons.FontAwesomeIcons
 import compose.icons.feathericons.AlertCircle
 import compose.icons.feathericons.ArrowLeft
+import compose.icons.feathericons.Repeat
 import compose.icons.feathericons.X
 import compose.icons.feathericons.XCircle
 import compose.icons.fontawesomeicons.Solid
@@ -94,10 +98,15 @@ private fun SearchScreen(
 
             // --- Recent Searches
             if (uiState.recentSearches.isNotEmpty()) {
-                Text("Recent Searches", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Recent Searches",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(start = 12.dp),
+                    fontWeight = FontWeight.Bold
+                )
                 RecentSearchesRow(
                     recentSearches = uiState.recentSearches,
-                    onClick = { }
+                    onClick = {onSearchQueryChange(it) }
                 )
             }
 
@@ -110,7 +119,7 @@ private fun SearchScreen(
                 uiState.movies.isEmpty() -> NoResultsScreen()
                 else -> MovieResultsGrid(
                     movies = uiState.movies,
-                    onMovieClick = { }
+                    onMovieClick = {  }
                 )
             }
         }
@@ -144,10 +153,10 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, onClearQuery: () -
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            disabledContainerColor = MaterialTheme.colorScheme.surface,
-            errorContainerColor = MaterialTheme.colorScheme.surface,
+            focusedContainerColor = Color(0xFF29382E),
+            unfocusedContainerColor = Color(0xFF29382E),
+            disabledContainerColor = Color(0xFF29382E),
+            errorContainerColor = Color(0xFF29382E),
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
@@ -160,16 +169,24 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, onClearQuery: () -
 @Composable
 fun RecentSearchesRow(recentSearches: List<String>, onClick: (String) -> Unit) {
     FlowRow(
-        modifier = Modifier.padding(horizontal = 16.dp)
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        recentSearches.forEach { term ->
+        recentSearches.forEachIndexed { index, term ->
             OutlinedButton(
                 onClick = { onClick(term) },
-                shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, Color.Gray),
-                modifier = Modifier.padding(end = 8.dp, bottom = 8.dp)
+                shape = RoundedCornerShape(10.dp),
+                border = BorderStroke(1.dp, Color(0xFF3D5245)),
+                modifier = Modifier.height(58.dp).width(174.dp).padding(end = 8.dp, bottom = 8.dp)
+                    .background(Color(0xFF1C2621))
             ) {
-                Text(term)
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    if (index == 0) Icon(
+                        FeatherIcons.Repeat, null, modifier = Modifier.align(
+                            Alignment.CenterStart
+                        )
+                    )
+                    Text(term, color = Color.White, fontSize = 14.sp)
+                }
             }
 
         }
