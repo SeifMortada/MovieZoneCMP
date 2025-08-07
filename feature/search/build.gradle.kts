@@ -38,9 +38,6 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-
-            implementation(libs.material.icons.core)
-            implementation(libs.material.icons.extended)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -64,8 +61,8 @@ kotlin {
 
             //navigation
             implementation(libs.navigation.compose)
-            // Icons
-           // implementation(libs.compose.icons)
+
+            implementation(libs.material.icons.extended)
 
 
         }

@@ -8,6 +8,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,26 +22,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.gameZone.models.Movie
 import com.gamezone.ui.theme.MovieZoneTheme
-import compose.icons.FeatherIcons
-import compose.icons.FontAwesomeIcons
-import compose.icons.feathericons.AlertCircle
-import compose.icons.feathericons.ArrowLeft
-import compose.icons.feathericons.Repeat
-import compose.icons.feathericons.X
-import compose.icons.feathericons.XCircle
-import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.solid.Backward
-import compose.icons.fontawesomeicons.solid.Search
-import compose.icons.fontawesomeicons.solid.SearchMinus
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -49,7 +42,8 @@ fun SearchRoute(
         uiState = uiState,
         onBackClick = onBackClick,
         onSearchQueryChange = viewModel::onQueryChange,
-        onSearchCleared = viewModel::onClearQuery
+        onSearchCleared = viewModel::onClearQuery,
+        onRecentSearchClick = viewModel::onRecentSearchSelected
     )
 }
 
@@ -59,7 +53,8 @@ private fun SearchScreen(
     uiState: SearchUiState,
     onBackClick: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
-    onSearchCleared: () -> Unit
+    onSearchCleared: () -> Unit,
+    onRecentSearchClick: (String) -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -70,7 +65,7 @@ private fun SearchScreen(
                 title = { Text("Search") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(FeatherIcons.ArrowLeft, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -85,9 +80,11 @@ private fun SearchScreen(
             Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .background(colors.background)
+                .background(colors.background),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- Search Bar
+
             SearchBar(
                 query = uiState.query,
                 onQueryChange = { onSearchQueryChange(it) },
@@ -100,13 +97,13 @@ private fun SearchScreen(
             if (uiState.recentSearches.isNotEmpty()) {
                 Text(
                     "Recent Searches",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(start = 12.dp),
                     fontWeight = FontWeight.Bold
                 )
                 RecentSearchesRow(
                     recentSearches = uiState.recentSearches,
-                    onClick = {onSearchQueryChange(it) }
+                    onClick = { onRecentSearchClick(it) }
                 )
             }
 
@@ -117,10 +114,18 @@ private fun SearchScreen(
                 uiState.isLoading -> CircularProgressIndicator()
                 uiState.query.isEmpty() -> DefaultEmptyScreen()
                 uiState.movies.isEmpty() -> NoResultsScreen()
-                else -> MovieResultsGrid(
-                    movies = uiState.movies,
-                    onMovieClick = {  }
-                )
+                else -> {
+                    Text(
+                        "Search Results",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(start = 12.dp),
+                        fontWeight = FontWeight.Bold
+                    )
+                    MovieResultsGrid(
+                        movies = uiState.movies,
+                        onMovieClick = { }
+                    )
+                }
             }
         }
     }
@@ -133,7 +138,7 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, onClearQuery: () -
         onValueChange = onQueryChange,
         leadingIcon = {
             Icon(
-                FontAwesomeIcons.Solid.Search,
+                Icons.Filled.Search,
                 contentDescription = "Search",
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onBackground
@@ -142,7 +147,7 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, onClearQuery: () -
         trailingIcon = {
             if (query.isNotEmpty()) {
                 IconButton(onClick = onClearQuery) {
-                    Icon(FeatherIcons.XCircle, contentDescription = "Clear")
+                    Icon(Icons.Outlined.Clear, contentDescription = "Clear")
                 }
             }
         },
@@ -151,6 +156,7 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, onClearQuery: () -
         singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
+            .wrapContentHeight()
             .padding(horizontal = 16.dp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color(0xFF29382E),
@@ -176,14 +182,18 @@ fun RecentSearchesRow(recentSearches: List<String>, onClick: (String) -> Unit) {
                 onClick = { onClick(term) },
                 shape = RoundedCornerShape(10.dp),
                 border = BorderStroke(1.dp, Color(0xFF3D5245)),
-                modifier = Modifier.height(58.dp).width(174.dp).padding(end = 8.dp, bottom = 8.dp)
+                modifier = Modifier
+                    .height(58.dp)
+                    .width(174.dp)
+                    .padding(end = 8.dp, bottom = 8.dp)
                     .background(Color(0xFF1C2621))
             ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     if (index == 0) Icon(
-                        FeatherIcons.Repeat, null, modifier = Modifier.align(
-                            Alignment.CenterStart
-                        )
+                        imageVector =  Icons.Filled.Repeat,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp).align(Alignment.CenterStart)
                     )
                     Text(term, color = Color.White, fontSize = 14.sp)
                 }
@@ -256,7 +266,7 @@ fun NoResultsScreen() {
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                imageVector = FeatherIcons.AlertCircle,
+                imageVector = Icons.Filled.ErrorOutline,
                 contentDescription = "Not Found",
                 modifier = Modifier.size(150.dp)
             )
@@ -272,6 +282,6 @@ fun SearchScreenPreview() {
         SearchScreen(
             uiState = SearchUiState(
                 query = "asd"
-            ), {}, {}) { }
+            ), {}, {}, {}) { }
     }
 }

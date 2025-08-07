@@ -1,6 +1,6 @@
 package com.gameZone.api.service
 
-import com.gameZone.api.response.PopularMoviesResponse
+import com.gameZone.api.response.MoviesResponse
 import com.gameZone.api.response.PopularTvShowsResponse
 import com.gameZone.api.response.RemoteMovie
 import com.gameZone.models.ApiOperation
@@ -11,17 +11,17 @@ import io.ktor.client.request.get
 
 class ApiService(private val httpClient: HttpClient) {
 
-    suspend fun getPopularMovies(): ApiOperation<PopularMoviesResponse> {
+    suspend fun getPopularMovies(): ApiOperation<MoviesResponse> {
         return safeApiCall {
             httpClient.get("3/movie/popular")
-                .body<PopularMoviesResponse>()
+                .body<MoviesResponse>()
         }
     }
 
-    suspend fun getTopRatedMovies(): ApiOperation<PopularMoviesResponse> {
+    suspend fun getTopRatedMovies(): ApiOperation<MoviesResponse> {
         return safeApiCall {
             httpClient.get("3/movie/top_rated")
-                .body<PopularMoviesResponse>()
+                .body<MoviesResponse>()
         }
     }
 
@@ -36,6 +36,16 @@ class ApiService(private val httpClient: HttpClient) {
         return safeApiCall {
             httpClient.get("3/tv/popular")
                 .body<PopularTvShowsResponse>()
+        }
+    }
+
+    suspend fun searchMovies(query: String): ApiOperation<MoviesResponse> {
+        return safeApiCall {
+            httpClient.get("3/search/movie") {
+                url {
+                    parameters.append("query", query)
+                }
+            }.body<MoviesResponse>()
         }
     }
 }

@@ -39,9 +39,6 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
 
-            implementation(libs.material.icons.core)
-            implementation(libs.material.icons.extended)
-
             implementation ("androidx.palette:palette-ktx:1.0.0")
         }
         commonMain.dependencies {
@@ -66,8 +63,6 @@ kotlin {
 
             //navigation
             implementation(libs.navigation.compose)
-
-          //  implementation(libs.compose.icons)
 
         }
         commonTest.dependencies {

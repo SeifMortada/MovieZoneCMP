@@ -55,6 +55,10 @@ kotlin {
             //koin
             implementation(libs.koin.core)
 
+            //material icons
+           // implementation(libs.material.icons.core)
+            implementation(libs.material.icons.extended)
+
             //Modules
             implementation(projects.core.network)
             implementation(projects.core.database)

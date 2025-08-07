@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
-import compose.icons.FontAwesomeIcons
 
 @Composable
 fun CoreAsyncImage(

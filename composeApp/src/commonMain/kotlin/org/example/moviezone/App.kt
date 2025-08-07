@@ -4,6 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -13,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -29,10 +35,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import search.navigation.SearchNav
 
-sealed class Item(val icon: DrawableResource, val title: String, val route: Any) {
-    data object Home : Item(Res.drawable.ic_home, "Home", HomeNavigation)
-    data object Search : Item(Res.drawable.ic_search, "Search", SearchNav)
-    data object Details : Item(Res.drawable.ic_add, "Details", DetailsNav)
+sealed class Item(val icon: ImageVector, val title: String, val route: Any) {
+    data object Home : Item(Icons.Filled.Home, "Home", HomeNavigation)
+    data object Search : Item(Icons.Filled.Search, "Search", SearchNav)
+    data object Details : Item(Icons.Filled.Archive, "Details", DetailsNav)
 }
 
 val items = listOf(Item.Home, Item.Search, Item.Details)
@@ -56,7 +62,7 @@ fun App() {
                         NavigationBarItem(
                             icon = {
                                 Icon(
-                                    painter = painterResource(it.icon),
+                                    imageVector = it.icon,
                                     contentDescription = it.title
                                 )
                             },

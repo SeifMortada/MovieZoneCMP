@@ -11,4 +11,6 @@ interface MoviesRepository {
 
     suspend fun getMovieDetails(movieId: Int): ApiOperation<MovieDetails>
 
+    suspend fun searchMovies(query: String): ApiOperation<List<Movie>>
+
 }

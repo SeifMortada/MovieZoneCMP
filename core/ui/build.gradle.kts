@@ -52,8 +52,12 @@ kotlin {
             implementation(libs.coil)
             implementation(libs.coil.ktor)
 
-            // common ui libs
-            api(libs.bundles.compose.icons)
+            // modules
+            implementation(projects.core.domain)
+
+            //material icons
+           // implementation(libs.material.icons.core)
+            api(libs.material.icons.extended)
 
         }
         commonTest.dependencies {

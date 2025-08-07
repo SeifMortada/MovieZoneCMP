@@ -36,8 +36,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.ImageLoader
 import com.gameZone.models.Movie
 import com.gameZone.models.TvShow
+import com.gamezone.ui.composables.LoadImage
+import com.gamezone.ui.composables.MediumWhiteText
+import com.gamezone.ui.composables.MovieCard
+import com.gamezone.ui.composables.SmallMagentaText
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -102,7 +107,7 @@ fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit){
                     .padding(bottom = 24.dp)
             ) {
                 items(state.popularMovies) {
-                    PopularMovieCard(it,onMovieClick)
+                    MovieCard(it,onMovieClick)
                     Spacer(Modifier.width(12.dp))
                 }
             }
@@ -121,7 +126,7 @@ fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit){
         item {
             LazyRow {
                 items(state.topRatedMovies) {
-                    PopularMovieCard(it,onMovieClick)
+                    MovieCard(it,onMovieClick)
                     Spacer(Modifier.width(12.dp))
                 }
             }
@@ -146,34 +151,6 @@ fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit){
 }
 
 @Composable
-fun PopularMovieCard(
-    movie: Movie,
-    onClick: (Int) -> Unit = {}
-) {
-    Column(
-        modifier = Modifier
-            .width(140.dp)
-            .padding(8.dp)
-            .clickable { onClick(movie.id) },
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        MovieImage(movie.posterPath)
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = movie.title,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary,
-            maxLines = 2
-        )
-        Spacer(Modifier.height(4.dp))
-        MediumWhiteText(movie.overview, maxLines = 3)
-        Spacer(Modifier.height(12.dp))
-        SmallMagentaText(movie.releaseDate)
-    }
-}
-
-@Composable
 fun PopularTvShowCard(
     tvShow: TvShow
 ) {
@@ -183,7 +160,7 @@ fun PopularTvShowCard(
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        MovieImage(tvShow.posterPath)
+        LoadImage(tvShow.posterPath)
         Spacer(Modifier.height(8.dp))
         Text(
             text = tvShow.name,
@@ -200,49 +177,6 @@ fun PopularTvShowCard(
         SmallMagentaText(tvShow.originalLanguage.toString())
     }
 }
-
-@Composable
-fun SmallMagentaText(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.primary
-    )
-}
-
-@Composable
-fun MediumWhiteText(text: String, maxLines: Int = Int.MAX_VALUE) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onBackground,
-        maxLines = maxLines,
-        overflow = TextOverflow.Ellipsis
-    )
-}
-
-@Composable
-fun MovieImage(imageUrl: String) {
-    Box(
-        modifier = Modifier
-            .width(140.dp)
-            .aspectRatio(2f / 3f)
-            .clip(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .shadow(elevation = 8.dp, shape = RoundedCornerShape(18.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        AsyncImage(
-            model = imageUrl,
-            contentScale = ContentScale.Crop,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(18.dp))
-        )
-    }
-}
-
 
 @Preview
 @Composable
