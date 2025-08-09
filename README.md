@@ -58,4 +58,9 @@ The app showcases a clean UI, smooth navigation, and up-to-date movie data with 
 ---
 
 ## 📂 Project Structure
-
+MovieZoneCMP/
+├── composeApp/ # Shared Compose UI code
+├── iosApp/ # iOS platform-specific code
+├── shared/ # Shared Kotlin code (business logic, networking, models)
+├── gradle/ # Gradle configuration
+└── README.md
