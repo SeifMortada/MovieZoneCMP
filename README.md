@@ -11,7 +11,7 @@ The app showcases a clean UI, smooth navigation, and up-to-date movie data with 
 
 | Home Screen | Movie Details | Search |
 |-------------|---------------|--------|
-| ![Home](assets/screens/home.png) | ![Details](assets/screens/details.png) | ![Search](assets/screens/search.png) |
+| ![Home](assets/home.png) | ![Details](assets/details.png) | ![Search](assets/search.png) |
 
 *(Images are from the design prototype — actual UI closely matches these)*
 
