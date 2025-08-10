@@ -1,13 +1,11 @@
 package details.presentation
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,11 +23,8 @@ import coil3.compose.AsyncImage
 import com.gameZone.models.Genre
 import com.gameZone.models.MovieDetails
 import com.gameZone.models.ProductionCompany
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import moviezone.feature.details.generated.resources.Res
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -152,13 +147,6 @@ fun MovieContent(
 fun CollapsibleImage(imageUrl: String?) {
     val initial = Color(0xFF1B1B1B)
     var backgroundColor by remember { mutableStateOf(initial) }
-    val context = androidContextOrNull()
-
-    LaunchedEffect(imageUrl) {
-        extractDominantColor(imageUrl, context)?.let {
-            backgroundColor = it
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -418,11 +406,4 @@ fun MovieDetailsScreenPreview() {
         genres = listOf<Genre>(Genre(1, "Animation"), Genre(2, "Adventure")),
         budget = 20000
     )
-
-/*    MovieDetailsScreen(
-        uiState = MovieDetailsUiState(
-           movieDetails = dummyMovie,
-            isLoading = false,
-            error = null
-    ))*/
 }
