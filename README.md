@@ -1,14 +1,66 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Desktop.
+# 🎬 MovieZoneCMP
 
-* `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
+MovieZoneCMP is a **Kotlin Multiplatform** application that delivers a modern movie and TV series browsing experience.  
+The app showcases a clean UI, smooth navigation, and up-to-date movie data with features like popular movies, now playing, popular series, and search.  
 
-* `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+> **Note:** The project is still under active development — screenshots below reflect the current implemented UI and design direction.
 
+---
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## 📱 App Design Preview
+
+| Home Screen | Movie Details | Search |
+|-------------|---------------|--------|
+| ![Home](assets/home.png) | ![Details](assets/details.png) | ![Search](assets/search.png) |
+
+*(Images are from the design prototype — actual UI closely matches these)*
+
+---
+
+## ✨ Current Features
+
+- **Home Screen**
+  - Popular Movies section
+  - Now Playing section
+  - Popular Series section
+- **Movie Details Screen**
+  - Poster, title, rating, and release year
+  - Overview description
+  - Cast list with images and names
+  - Buttons for *Watch Now* and *Add to Watchlist*
+- **Search Screen**
+  - Search by movie title
+  - Recent search tags
+  - Filter by genre (Comedy, Drama, Thriller, etc.)
+  - Search results grid
+
+---
+
+## 🛠 Tech Stack
+
+**Languages & Platforms**
+- Kotlin Multiplatform (Android, iOS, Desktop)
+- Swift (for iOS UI integration)
+- Jetpack Compose Multiplatform
+
+**UI & Design**
+- Jetpack Compose (Android/Shared)
+- Material 3 design system
+
+**Networking & Data**
+- Ktor Client – API requests
+- Kotlinx Serialization – JSON parsing
+
+**Architecture**
+- MVVM pattern
+- Shared business logic in `shared` module
+
+---
+
+## 📂 Project Structure
+MovieZoneCMP/
+├── composeApp/ # Shared Compose UI code
+├── iosApp/ # iOS platform-specific code
+├── shared/ # Shared Kotlin code (business logic, networking, models)
+├── gradle/ # Gradle configuration
+└── README.md
