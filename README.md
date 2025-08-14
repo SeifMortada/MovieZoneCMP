@@ -57,8 +57,7 @@ The app showcases a clean UI, smooth navigation, and up-to-date movie data with 
 - **SQLDelight** – Cross-platform database for offline storage (favorites)
 
 **Architecture**
-- MVVM pattern
-- Shared business logic in `shared` module
+- MVI pattern
 - Repository pattern for data access
 
 ---
@@ -68,7 +67,6 @@ The app showcases a clean UI, smooth navigation, and up-to-date movie data with 
 MovieZoneCMP/
 ├── composeApp/   # Shared Compose UI code
 ├── iosApp/       # iOS platform-specific code
-├── shared/       # Shared Kotlin code (business logic, networking, database, models)
 ├── core/         # Core modules (e.g., database, network)
 ├── gradle/       # Gradle configuration
 └── README.md
