@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object SearchNav
 
-fun NavGraphBuilder.searchScreen(onBackClick:()->Unit){
+fun NavGraphBuilder.searchScreen(onBackClick: () -> Unit,onMovieClick: (Int) -> Unit) {
     composable<SearchNav> {
-        SearchRoute(onBackClick =onBackClick )
+        SearchRoute(onBackClick = onBackClick, onMovieClick = onMovieClick)
     }
 }

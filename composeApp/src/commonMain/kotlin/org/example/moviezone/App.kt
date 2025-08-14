@@ -5,9 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +14,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.gamezone.ui.theme.MovieZoneTheme
-import details.navigation.DetailsNav
+import favourites.navigation.FavouritesNav
 import home.navigation.HomeNavigation
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.example.moviezone.navigation.AppNavHost
@@ -33,10 +33,10 @@ import search.navigation.SearchNav
 sealed class Item(val icon: ImageVector, val title: String, val route: Any) {
     data object Home : Item(Icons.Filled.Home, "Home", HomeNavigation)
     data object Search : Item(Icons.Filled.Search, "Search", SearchNav)
-    data object Details : Item(Icons.Filled.Archive, "Details", DetailsNav)
+    data object Favourites : Item(Icons.Filled.Favorite, "Favourites", FavouritesNav)
 }
 
-val items = listOf(Item.Home, Item.Search, Item.Details)
+val items = listOf(Item.Home, Item.Search, Item.Favourites)
 
 private val logger = KotlinLogging.logger {}
 
@@ -67,7 +67,7 @@ fun App() {
                                     contentDescription = it.title
                                 )
                             },
-                            //  label = { Text(it.title) },
+                             label = { Text(it.title) },
                             selected = currentRoute == it.route,
                             onClick = {
                                 if (currentRoute != it.route) {

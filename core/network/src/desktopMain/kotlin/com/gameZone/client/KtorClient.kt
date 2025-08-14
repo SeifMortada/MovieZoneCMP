@@ -35,7 +35,7 @@ actual object KtorClient {
                     contentType(ContentType.Application.Json)
                     accept(ContentType.Application.Json)
                 }
-                headers.append("Authorization", "Bearer $apiKey") // keep or replace with your key management
+                headers.append("Authorization", "Bearer $apiKey")
             }
 
             install(ContentNegotiation) {

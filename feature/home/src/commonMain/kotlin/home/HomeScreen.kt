@@ -53,7 +53,13 @@ fun HomeRoute(
     paddingValues: PaddingValues
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-    HomeScreen(uiState, onMovieClick, viewModel::saveTvShow, paddingValues)
+    HomeScreen(
+        state = uiState,
+        onMovieClick = onMovieClick,
+        onTvShowSaved = viewModel::saveTvShow,
+        addFavourite = viewModel::addMovieToFavourites,
+        paddingValues = paddingValues,
+    )
 
 }
 
@@ -62,6 +68,7 @@ fun HomeScreen(
     state: HomeUiState,
     onMovieClick: (Int) -> Unit,
     onTvShowSaved: (TvShow) -> Unit,
+    addFavourite: (Movie) -> Unit,
     paddingValues: PaddingValues
 ) {
     Column(
@@ -82,14 +89,19 @@ fun HomeScreen(
             state.isLoading -> CircularProgressIndicator()
 
             else -> {
-                HomeContent(state, onMovieClick, onTvShowSaved)
+                HomeContent(state, onMovieClick, onTvShowSaved, addFavourite)
             }
         }
     }
 }
 
 @Composable
-fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit, onTvShowSaved: (TvShow) -> Unit) {
+fun HomeContent(
+    state: HomeUiState,
+    onMovieClick: (Int) -> Unit,
+    onTvShowSaved: (TvShow) -> Unit,
+    addFavourite: (Movie) -> Unit
+) {
     LazyColumn {
         item {
             Text(
@@ -108,7 +120,7 @@ fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit, onTvShowSaved: 
                     .padding(bottom = 24.dp)
             ) {
                 items(state.popularMovies) {
-                    MovieCard(it, onMovieClick)
+                    MovieCard(it, onMovieClick, isFavourite = true, addFavourite = addFavourite)
                     Spacer(Modifier.width(12.dp))
                 }
             }
@@ -143,7 +155,7 @@ fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit, onTvShowSaved: 
             )
             LazyRow {
                 items(state.popularTvShows) {
-                    PopularTvShowCard(it,onTvShowSaved)
+                    PopularTvShowCard(it, onTvShowSaved)
                     Spacer(Modifier.width(12.dp))
                 }
             }
@@ -186,4 +198,40 @@ fun PopularTvShowCard(
 @Preview
 @Composable
 private fun CharacterScreenPreview() {
+    MaterialTheme {
+        HomeScreen(
+            state = HomeUiState(
+                popularMovies = List(5) {
+                    Movie(it, "Movie $it", "/$it.jpg", "Overview $it", "2023-01-01", listOf(100))
+                },
+                topRatedMovies = List(5) {
+                    Movie(
+                        it + 5,
+                        "Top Rated Movie ${it + 5}",
+                        "/${it + 5}.jpg",
+                        "Top Rated Overview ${it + 5}",
+                        "2023-02-01",
+                        listOf(100)
+                    )
+                },
+                popularTvShows = List(5) {
+                    TvShow(
+                        it,
+                        "TV Show $it",
+                        "/tv$it.jpg",
+                        "TV Overview $it",
+                        "2023-03-01",
+                        "es",
+                        listOf(1, 2, 3),
+                    )
+                },
+                isLoading = false,
+                error = null
+            ),
+            onMovieClick = {},
+            onTvShowSaved = {},
+            addFavourite = {},
+            paddingValues = PaddingValues(0.dp)
+        )
+    }
 }

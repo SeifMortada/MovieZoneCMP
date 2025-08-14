@@ -19,9 +19,9 @@ import coil3.compose.AsyncImage
 
 
 @Composable
-fun LoadImage(imageUrl: String) {
+fun LoadImage(imageUrl: String, modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .width(140.dp)
             .aspectRatio(2f / 3f)
             .clip(RoundedCornerShape(18.dp))

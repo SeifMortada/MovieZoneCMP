@@ -4,10 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gameZone.models.Movie
 import com.gameZone.models.TvShow
+import com.gameZone.usecase.AddMovieToFavorites
 import home.domain.usecase.GetPopularMoviesUseCase
 import home.domain.usecase.GetPopularTvShowsUseCase
 import home.domain.usecase.GetTopRatedMovies
-import home.domain.usecase.SaveTvShowUseCase
+import com.gameZone.usecase.AddTvShowToFavourites
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -25,7 +26,8 @@ class HomeViewModel(
     private val getPopularMoviesUseCase: GetPopularMoviesUseCase,
     private val getTopRatedMoviesUseCase: GetTopRatedMovies,
     private val getPopularTvShowsUseCase: GetPopularTvShowsUseCase,
-    private val saveTvShowUseCase: SaveTvShowUseCase
+    private val addTvShowToFavourites: AddTvShowToFavourites,
+    private val addMovieToFavorites: AddMovieToFavorites
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
@@ -92,6 +94,10 @@ class HomeViewModel(
     }
 
     fun saveTvShow(tvShow: TvShow) = viewModelScope.launch {
-        saveTvShowUseCase(tvShow)
+        addTvShowToFavourites(tvShow)
+    }
+
+    fun addMovieToFavourites(movie: Movie) = viewModelScope.launch {
+        addMovieToFavorites(movie)
     }
 }

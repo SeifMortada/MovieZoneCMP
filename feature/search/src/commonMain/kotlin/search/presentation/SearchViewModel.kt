@@ -16,7 +16,7 @@ data class SearchUiState(
     val isLoading: Boolean = false,
     val query: String = "",
     val movies: List<Movie> = emptyList(),
-    val recentSearches: List<String> = listOf("Test1", "test 2 ", "test 3"),
+    val recentSearches: List<String> = emptyList(),
     val error: String? = null
 )
 
@@ -38,7 +38,7 @@ class SearchViewModel(
 
     var searchJob: Job? = null
     fun search() {
-        searchJob = null
+        searchJob?.cancel()
         searchJob = viewModelScope.launch {
             delay(500)
             val query = _uiState.value.query.trim()

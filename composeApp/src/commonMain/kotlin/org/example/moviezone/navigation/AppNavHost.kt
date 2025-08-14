@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import details.navigation.DetailsNav
 import details.navigation.detailsScreen
+import favourites.navigation.favouritesScreen
 import home.navigation.HomeNavigation
 import home.navigation.homeScreen
 import search.navigation.searchScreen
@@ -26,7 +27,13 @@ fun AppNavHost(
         detailsScreen {
             navHostController.popBackStack()
         }
-        searchScreen {
+        searchScreen(
+            onBackClick = { navHostController.popBackStack() },
+            onMovieClick = { movieId ->
+                navHostController.navigate(DetailsNav(movieId))
+            }
+        )
+        favouritesScreen {
             navHostController.popBackStack()
         }
     }

@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
@@ -18,7 +18,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -29,17 +29,17 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     jvm("desktop")
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.koin.android)
 
+            implementation ("androidx.palette:palette-ktx:1.0.0")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -50,29 +50,20 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            // Modules
+            implementation(projects.core.domain)
+            implementation(projects.core.ui)
+
+            // koin
+            implementation(libs.koin.compose.viewmodel)
+
+            // Coil
+            implementation(libs.coil)
+            implementation(libs.coil.ktor)
 
             //navigation
             implementation(libs.navigation.compose)
 
-            //koin
-            implementation(libs.koin.core)
-
-            //material icons
-           // implementation(libs.material.icons.core)
-            implementation(libs.material.icons.extended)
-
-            //Modules
-            implementation(projects.core.network)
-            implementation(projects.core.database)
-            implementation(projects.core.domain)
-            implementation(projects.core.ui)
-            implementation(projects.feature.home)
-            implementation(projects.feature.details)
-            implementation(projects.feature.search)
-            implementation(projects.feature.favourites)
-
-            // Logging
-            implementation(libs.kotlin.logging)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -85,15 +76,12 @@ kotlin {
 }
 
 android {
-    namespace = "org.example.moviezone"
+    namespace = "org.example.project.feature.favourites"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "org.example.moviezone"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
     }
     packaging {
         resources {
@@ -117,11 +105,10 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "org.example.moviezone.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.example.moviezone"
+            packageName = "org.example.project.feature.favourites"
             packageVersion = "1.0.0"
         }
     }

@@ -17,12 +17,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.gameZone.models.Genre
 import com.gameZone.models.MovieDetails
 import com.gameZone.models.ProductionCompany
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -335,8 +337,8 @@ fun SectionDivider() {
 fun ButtonRow(
     pageLink: String?,
     snackbarHostState: SnackbarHostState,
-    uriHandler: androidx.compose.ui.platform.UriHandler,
-    coroutineScope: kotlinx.coroutines.CoroutineScope
+    uriHandler: UriHandler,
+    coroutineScope: CoroutineScope
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp),

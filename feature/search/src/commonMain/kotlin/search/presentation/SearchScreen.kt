@@ -36,6 +36,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SearchRoute(
     viewModel: SearchViewModel = koinViewModel(),
     onBackClick: () -> Unit,
+    onMovieClick: (Int) -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
     SearchScreen(
@@ -43,7 +44,8 @@ fun SearchRoute(
         onBackClick = onBackClick,
         onSearchQueryChange = viewModel::onQueryChange,
         onSearchCleared = viewModel::onClearQuery,
-        onRecentSearchClick = viewModel::onRecentSearchSelected
+        onRecentSearchClick = viewModel::onRecentSearchSelected,
+        onMovieClick = onMovieClick
     )
 }
 
@@ -55,6 +57,7 @@ private fun SearchScreen(
     onSearchQueryChange: (String) -> Unit,
     onSearchCleared: () -> Unit,
     onRecentSearchClick: (String) -> Unit,
+    onMovieClick: (Int) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -123,7 +126,7 @@ private fun SearchScreen(
                     )
                     MovieResultsGrid(
                         movies = uiState.movies,
-                        onMovieClick = { }
+                        onMovieClick = onMovieClick
                     )
                 }
             }
@@ -190,7 +193,7 @@ fun RecentSearchesRow(recentSearches: List<String>, onClick: (String) -> Unit) {
             ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     if (index == 0) Icon(
-                        imageVector =  Icons.Filled.Repeat,
+                        imageVector = Icons.Filled.Repeat,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(24.dp).align(Alignment.CenterStart)
@@ -204,7 +207,7 @@ fun RecentSearchesRow(recentSearches: List<String>, onClick: (String) -> Unit) {
 }
 
 @Composable
-fun MovieResultsGrid(movies: List<Movie>, onMovieClick: (Movie) -> Unit) {
+fun MovieResultsGrid(movies: List<Movie>, onMovieClick: (Int) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier
@@ -212,19 +215,19 @@ fun MovieResultsGrid(movies: List<Movie>, onMovieClick: (Movie) -> Unit) {
             .padding(8.dp)
     ) {
         items(movies) { movie ->
-            MovieCard(movie, onClick = { onMovieClick(movie) })
+            MovieCard(movie, onClick = onMovieClick)
         }
     }
 }
 
 @Composable
-fun MovieCard(movie: Movie, onClick: () -> Unit) {
+fun MovieCard(movie: Movie, onClick: (Int) -> Unit) {
     Column(
         modifier = Modifier
             .padding(8.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFF222825))
-            .clickable(onClick = onClick)
+            .clickable(onClick = { onClick(movie.id) })
     ) {
         AsyncImage(
             model = movie.posterPath,
@@ -282,6 +285,6 @@ fun SearchScreenPreview() {
         SearchScreen(
             uiState = SearchUiState(
                 query = "asd"
-            ), {}, {}, {}) { }
+            ), {}, {}, {},{}) { }
     }
 }
