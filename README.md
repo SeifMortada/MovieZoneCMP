@@ -1,7 +1,7 @@
 # 🎬 MovieZoneCMP
 
 MovieZoneCMP is a **Kotlin Multiplatform** application that delivers a modern movie and TV series browsing experience.  
-The app showcases a clean UI, smooth navigation, and up-to-date movie data with features like popular movies, now playing, popular series, and search.  
+The app showcases a clean UI, smooth navigation, and up-to-date movie data with features like popular movies, now playing, popular series, search, and favorites.
 
 > **Note:** The project is still under active development — screenshots below reflect the current implemented UI and design direction.
 
@@ -9,11 +9,11 @@ The app showcases a clean UI, smooth navigation, and up-to-date movie data with 
 
 ## 📱 App Design Preview
 
-| Home Screen              | Movie Details     | Details 2                       | Search |
-|--------------------------|-------------------|----- Details 2 -----------------| Search |
-| ![Home](assets/home.png) | ![Details](assets/details.png) ![Details2](assets/details2.png) | ![Search](assets/search.png) | 
+| Home Screen | Movie Details | Search | Favorites |
+|-------------|---------------|--------|-----------|
+| <img src="assets/home.png" width="220"/> | <img src="assets/details.png" width="220"/> | <img src="assets/search.png" width="220"/> | <img src="assets/favorites.png" width="220"/> |
 
-*(Images are from the design prototype — actual UI closely matches these)*
+*(Images are scaled for consistent table layout — actual UI closely matches these)*
 
 ---
 
@@ -33,6 +33,10 @@ The app showcases a clean UI, smooth navigation, and up-to-date movie data with 
   - Recent search tags
   - Filter by genre (Comedy, Drama, Thriller, etc.)
   - Search results grid
+- **Favorites Screen**
+  - Save movies and TV shows to a local favorites list
+  - Remove items from favorites
+  - Persist favorites across app launches using SQLDelight
 
 ---
 
@@ -50,17 +54,33 @@ The app showcases a clean UI, smooth navigation, and up-to-date movie data with 
 **Networking & Data**
 - Ktor Client – API requests
 - Kotlinx Serialization – JSON parsing
+- **SQLDelight** – Cross-platform database for offline storage (favorites)
 
 **Architecture**
 - MVVM pattern
 - Shared business logic in `shared` module
+- Repository pattern for data access
 
 ---
 
 ## 📂 Project Structure
+```
 MovieZoneCMP/
-├── composeApp/ # Shared Compose UI code
-├── iosApp/ # iOS platform-specific code
-├── shared/ # Shared Kotlin code (business logic, networking, models)
-├── gradle/ # Gradle configuration
+├── composeApp/   # Shared Compose UI code
+├── iosApp/       # iOS platform-specific code
+├── shared/       # Shared Kotlin code (business logic, networking, database, models)
+├── core/         # Core modules (e.g., database, network)
+├── gradle/       # Gradle configuration
 └── README.md
+```
+
+---
+
+## 💾 Database (SQLDelight)
+
+The app uses **SQLDelight** for:
+- Storing and retrieving favorite movies/TV shows
+- Generating type-safe Kotlin database APIs
+- Working seamlessly across Android, iOS, and Desktop
+
+Database schema is defined in `core/database/src/commonMain/sqldelight`, and SQLDelight generates platform-specific drivers automatically.
