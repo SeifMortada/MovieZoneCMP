@@ -1,6 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,13 +6,16 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.sql.delight)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+    androidTarget()
+
+    jvm("desktop") {
+        compilations.all {
+            kotlinOptions.jvmTarget = "11"
         }
     }
 
@@ -29,14 +30,14 @@ kotlin {
         }
     }
 
-    jvm("desktop")
-
     sourceSets {
         val desktopMain by getting
 
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.sql.delight.android)
+            implementation(libs.koin.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -47,13 +48,27 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            // Kotlinx serialization
+            implementation(libs.kotlinx.serialization)
+
+            // SqlDelight
+            implementation(libs.sql.delight.common)
+            implementation(libs.sql.delight.common.coroutines)
+            // Koin
+            implementation(libs.koin.core)
+            // Modules
+            implementation(projects.core.domain)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+        iosMain.dependencies {
+            implementation(libs.sql.delight.ios)
+        }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.sql.delight.desktop)
         }
     }
 }
@@ -81,14 +96,19 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
-
+sqldelight {
+    databases {
+        create("MovieZoneDB") {
+            packageName.set("com.gamezone.db")
+        }
+    }
+}
 dependencies {
     debugImplementation(compose.uiTooling)
 }
 
 compose.desktop {
     application {
-
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "org.example.project.core.database"

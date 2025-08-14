@@ -53,7 +53,7 @@ fun HomeRoute(
     paddingValues: PaddingValues
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-    HomeScreen(uiState,onMovieClick,paddingValues)
+    HomeScreen(uiState, onMovieClick, viewModel::saveTvShow, paddingValues)
 
 }
 
@@ -61,6 +61,7 @@ fun HomeRoute(
 fun HomeScreen(
     state: HomeUiState,
     onMovieClick: (Int) -> Unit,
+    onTvShowSaved: (TvShow) -> Unit,
     paddingValues: PaddingValues
 ) {
     Column(
@@ -81,14 +82,14 @@ fun HomeScreen(
             state.isLoading -> CircularProgressIndicator()
 
             else -> {
-                HomeContent(state,onMovieClick)
+                HomeContent(state, onMovieClick, onTvShowSaved)
             }
         }
     }
 }
 
 @Composable
-fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit){
+fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit, onTvShowSaved: (TvShow) -> Unit) {
     LazyColumn {
         item {
             Text(
@@ -107,7 +108,7 @@ fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit){
                     .padding(bottom = 24.dp)
             ) {
                 items(state.popularMovies) {
-                    MovieCard(it,onMovieClick)
+                    MovieCard(it, onMovieClick)
                     Spacer(Modifier.width(12.dp))
                 }
             }
@@ -126,7 +127,7 @@ fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit){
         item {
             LazyRow {
                 items(state.topRatedMovies) {
-                    MovieCard(it,onMovieClick)
+                    MovieCard(it, onMovieClick)
                     Spacer(Modifier.width(12.dp))
                 }
             }
@@ -142,7 +143,7 @@ fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit){
             )
             LazyRow {
                 items(state.popularTvShows) {
-                    PopularTvShowCard(it)
+                    PopularTvShowCard(it,onTvShowSaved)
                     Spacer(Modifier.width(12.dp))
                 }
             }
@@ -152,12 +153,16 @@ fun HomeContent(state: HomeUiState, onMovieClick: (Int) -> Unit){
 
 @Composable
 fun PopularTvShowCard(
-    tvShow: TvShow
+    tvShow: TvShow,
+    onTvShowSaved: (TvShow) -> Unit
 ) {
     Column(
         modifier = Modifier
             .width(140.dp)
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable {
+                onTvShowSaved(tvShow)
+            },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         LoadImage(tvShow.posterPath)

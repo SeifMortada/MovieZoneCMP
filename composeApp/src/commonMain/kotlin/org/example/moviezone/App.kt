@@ -25,13 +25,8 @@ import androidx.navigation.compose.rememberNavController
 import com.gamezone.ui.theme.MovieZoneTheme
 import details.navigation.DetailsNav
 import home.navigation.HomeNavigation
-import moviezone.composeapp.generated.resources.Res
-import moviezone.composeapp.generated.resources.ic_add
-import moviezone.composeapp.generated.resources.ic_home
-import moviezone.composeapp.generated.resources.ic_search
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.example.moviezone.navigation.AppNavHost
-import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import search.navigation.SearchNav
 
@@ -43,9 +38,15 @@ sealed class Item(val icon: ImageVector, val title: String, val route: Any) {
 
 val items = listOf(Item.Home, Item.Search, Item.Details)
 
+private val logger = KotlinLogging.logger {}
+
+
 @Composable
 @Preview
 fun App() {
+    logger.debug { "Debugging: value = 123" }
+    logger.info { "Some info here" }
+    logger.error { "An error happened!" }
     val navHost = rememberNavController()
     val navBackStackEntry by navHost.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

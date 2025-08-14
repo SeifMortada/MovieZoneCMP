@@ -7,6 +7,7 @@ import com.gameZone.models.TvShow
 import home.domain.usecase.GetPopularMoviesUseCase
 import home.domain.usecase.GetPopularTvShowsUseCase
 import home.domain.usecase.GetTopRatedMovies
+import home.domain.usecase.SaveTvShowUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -23,7 +24,8 @@ data class HomeUiState(
 class HomeViewModel(
     private val getPopularMoviesUseCase: GetPopularMoviesUseCase,
     private val getTopRatedMoviesUseCase: GetTopRatedMovies,
-    private val getPopularTvShowsUseCase: GetPopularTvShowsUseCase
+    private val getPopularTvShowsUseCase: GetPopularTvShowsUseCase,
+    private val saveTvShowUseCase: SaveTvShowUseCase
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
@@ -54,7 +56,7 @@ class HomeViewModel(
         val topRatedMovies = getTopRatedMoviesUseCase()
         topRatedMovies.onSuccess { movies ->
             _uiState.update {
-               it.copy(topRatedMovies = movies)
+                it.copy(topRatedMovies = movies)
             }
         }
             .onFailure { error ->
@@ -76,6 +78,7 @@ class HomeViewModel(
             }
         setLoading(false)
     }
+
     private fun setLoading(isLoading: Boolean) {
         _uiState.update {
             it.copy(isLoading = isLoading)
@@ -86,5 +89,9 @@ class HomeViewModel(
         _uiState.update {
             it.copy(error = error)
         }
+    }
+
+    fun saveTvShow(tvShow: TvShow) = viewModelScope.launch {
+        saveTvShowUseCase(tvShow)
     }
 }
