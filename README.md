@@ -9,9 +9,9 @@ The app showcases a clean UI, smooth navigation, and up-to-date movie data with 
 
 ## 📱 App Design Preview
 
-| Home Screen | Movie Details | Search |
-|-------------|---------------|--------|
-| ![Home](assets/home.png) | ![Details](assets/details.png) | ![Search](assets/search.png) |
+| Home Screen              | Movie Details     | Details 2                       | Search |
+|--------------------------|-------------------|----- Details 2 -----------------| Search |
+| ![Home](assets/home.png) | ![Details](assets/details.png) ![Details2](assets/details2.png) | ![Search](assets/search.png) | 
 
 *(Images are from the design prototype — actual UI closely matches these)*
 
