@@ -3,14 +3,20 @@ package favourites.presentation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.gameZone.models.Genre
 import com.gameZone.models.Movie
 import com.gameZone.models.MovieDetails
@@ -25,14 +31,14 @@ fun FavouritesRoute(
     onBackClick: () -> Unit,
 ) {
     val moviesState = viewModel.uiState.collectAsStateWithLifecycle().value
-    FavouritesScreen(movies = moviesState, onBackClick = onBackClick)
+    FavouritesScreen(movies = moviesState, viewModel::removeFromFavourites)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FavouritesScreen(
     movies: List<Movie>,
-    onBackClick: () -> Unit
+    onDelete: (Int) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -41,14 +47,6 @@ private fun FavouritesScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Favourites") },
-                navigationIcon = {
-/*                    IconButton(onClick = onBackClick) {
-                       Icon(
-                            imageVector = Res.drawable.ic,
-                            contentDescription = "Back"
-                        )
-                    }*/
-                },
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colors.surface
@@ -62,9 +60,9 @@ private fun FavouritesScreen(
                 MovieContent(
                     movies = movies,
                     padding = padding,
-                    scrollBehavior = scrollBehavior.nestedScrollConnection
+                    scrollBehavior = scrollBehavior.nestedScrollConnection,
+                    onDelete = onDelete
                 )
-
             }
             else -> EmptyScreen()
 
@@ -85,6 +83,7 @@ fun EmptyScreen() {
 @Composable
 fun MovieContent(
     movies: List<Movie>,
+    onDelete: (Int) -> Unit,
     padding: PaddingValues,
     scrollBehavior: NestedScrollConnection
 ) {
@@ -97,10 +96,58 @@ fun MovieContent(
         contentPadding = PaddingValues(16.dp)
     ) {
         items(movies) { movie ->
-            MovieCard(movie = movie)
+            FavMovieCard(movie = movie, onDelete = onDelete)
         }
     }
 }
+
+@Composable
+fun FavMovieCard(movie: Movie, onDelete: (Int) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(
+            model = movie.posterPath,
+            contentDescription = movie.title,
+            modifier = Modifier
+                .size(width = 100.dp, height = 150.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = movie.title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = movie.releaseDate,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        IconButton(onClick = { onDelete(movie.id) }) {
+            Icon(
+                imageVector = Icons.Default.Clear,
+                contentDescription = "Delete"
+            )
+        }
+    }
+}
+
 
 
 @Preview()
@@ -138,4 +185,15 @@ fun MovieDetailsScreenPreview() {
         genres = listOf<Genre>(Genre(1, "Animation"), Genre(2, "Adventure")),
         budget = 20000
     )
+    val movies = listOf(
+        Movie(
+            id = 123,
+            title = "How to Train Your Dragon",
+            overview = "On the rugged isle of Berk, where Vikings and dragons have been bitter enemies for generations, Hiccup stands apart, defying tradition when he befriends Toothless.",
+            releaseDate = "2025-06-06",
+            posterPath = "",
+            genres = listOf(123)
+        )
+    )
+    FavouritesScreen(movies = movies,   {})
 }

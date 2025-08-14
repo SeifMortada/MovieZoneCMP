@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.gameZone.models.Genre
+import com.gameZone.models.Movie
 import com.gameZone.models.MovieDetails
 import com.gameZone.models.ProductionCompany
 import kotlinx.coroutines.CoroutineScope
@@ -34,34 +37,43 @@ fun MovieDetailsRoute(
     movieId: Int,
     viewModel: MovieDetailsViewModel = koinViewModel(),
     onBackClick: () -> Unit,
+    paddingValues: PaddingValues
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
     LaunchedEffect(movieId) {
         viewModel.load(movieId)
     }
-    MovieDetailsScreen(uiState = uiState, onBackClick = onBackClick)
+    MovieDetailsScreen(
+        uiState = uiState,
+        onBackClick = onBackClick,
+        addToFavoritesClicked = viewModel::addToFavorites,
+        paddingValues = paddingValues
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MovieDetailsScreen(
     uiState: MovieDetailsUiState,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    addToFavoritesClicked: (MovieDetails) -> Unit,
+    paddingValues: PaddingValues
 ) {
     val colors = MaterialTheme.colorScheme
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(uiState.movieDetails?.title ?: "") },
                 navigationIcon = {
-/*                    IconButton(onClick = onBackClick) {
-                       Icon(
-                            imageVector = Res.drawable.ic,
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBackIosNew,
                             contentDescription = "Back"
                         )
-                    }*/
+                    }
                 },
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -69,7 +81,9 @@ private fun MovieDetailsScreen(
                 )
             )
         },
-        containerColor = colors.background
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }, // ✅ attach it here
+        containerColor = colors.background,
+        modifier = Modifier.fillMaxSize().padding(paddingValues)
     ) { padding ->
         when {
             uiState.isLoading -> Box(
@@ -98,7 +112,9 @@ private fun MovieDetailsScreen(
                 MovieContent(
                     details = uiState.movieDetails,
                     scrollBehavior = scrollBehavior,
-                    modifier = Modifier.padding(padding)
+                    modifier = Modifier.padding(padding),
+                    addToFavoritesClicked = addToFavoritesClicked,
+                    snackbarHostState = snackbarHostState
                 )
             }
         }
@@ -111,10 +127,11 @@ private fun MovieDetailsScreen(
 fun MovieContent(
     details: MovieDetails,
     scrollBehavior: TopAppBarScrollBehavior,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    addToFavoritesClicked: (MovieDetails) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     val colors = MaterialTheme.colorScheme
-    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
 
@@ -136,10 +153,11 @@ fun MovieContent(
         item { SectionDivider() }
         item {
             ButtonRow(
-                pageLink = details.homepage,
+                movieDetails = details,
                 snackbarHostState = snackbarHostState,
                 uriHandler = uriHandler,
-                coroutineScope = coroutineScope
+                coroutineScope = coroutineScope,
+                addToFavoritesClicked = addToFavoritesClicked
             )
         }
     }
@@ -170,50 +188,6 @@ fun CollapsibleImage(imageUrl: String?) {
                 modifier = Modifier.fillMaxSize()
             )
         }
-    }
-}
-
-
-
-@Composable
-fun TopBackdropImage(imageUrl: String?, title: String) {
-    val colors = MaterialTheme.colorScheme
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
-            .background(colors.surfaceVariant)
-    ) {
-        AsyncImage(
-            model = imageUrl,
-            contentScale = ContentScale.Crop,
-            contentDescription = title,
-            modifier = Modifier.fillMaxSize()
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            colors.surface.copy(alpha = 0.92f)
-                        ),
-                        startY = 150f
-                    )
-                )
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineMedium.copy(color = colors.onSurface),
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(16.dp)
-                .background(
-                    color = colors.surface.copy(alpha = 0.62f),
-                    shape = RoundedCornerShape(6.dp)
-                )
-        )
     }
 }
 
@@ -335,10 +309,11 @@ fun SectionDivider() {
 
 @Composable
 fun ButtonRow(
-    pageLink: String?,
+    movieDetails: MovieDetails,
     snackbarHostState: SnackbarHostState,
     uriHandler: UriHandler,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    addToFavoritesClicked: (MovieDetails) -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -350,8 +325,8 @@ fun ButtonRow(
     ) {
         Button(
             onClick = {
-                if (!pageLink.isNullOrEmpty()) {
-                    uriHandler.openUri(pageLink)
+                if (movieDetails.homepage.isNotEmpty()) {
+                    uriHandler.openUri(movieDetails.homepage)
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -363,16 +338,18 @@ fun ButtonRow(
         OutlinedButton(
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
             onClick = {
+                addToFavoritesClicked(movieDetails)
                 coroutineScope.launch {
-                    snackbarHostState.showSnackbar("Movie has been added to your watchlist")
+                    snackbarHostState.showSnackbar("Movie has been added to your favorites")
                 }
             },
             modifier = Modifier.weight(1f)
         ) {
-            Text("Add to Watchlist")
+            Text("Add to Favorites")
         }
     }
 }
+
 @Preview()
 @Composable
 fun MovieDetailsScreenPreview() {
@@ -407,5 +384,11 @@ fun MovieDetailsScreenPreview() {
         homepage = "https://www.welcometoberk.com/",
         genres = listOf<Genre>(Genre(1, "Animation"), Genre(2, "Adventure")),
         budget = 20000
+    )
+    MovieDetailsScreen(
+        uiState = MovieDetailsUiState(movieDetails = dummyMovie),
+        onBackClick = {},
+        paddingValues = PaddingValues(),
+        addToFavoritesClicked = {}
     )
 }

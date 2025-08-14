@@ -38,6 +38,17 @@ fun RemoteMovie.toDomainMovieDetails(): MovieDetails {
     )
 }
 
+fun MovieDetails.toMovie(): Movie {
+    return Movie(
+        id = id,
+        title = title,
+        overview = overview,
+        posterPath = imageUrl,
+        releaseDate = releaseDate,
+        genres = genres.mapNotNull { it.id }
+    )
+}
+
 fun Genre.toDomainGenre(): com.gameZone.models.Genre {
     return com.gameZone.models.Genre(
         id = id,

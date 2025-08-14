@@ -24,9 +24,10 @@ fun AppNavHost(
                 navHostController.navigate(DetailsNav(movieId))
             }
         )
-        detailsScreen {
-            navHostController.popBackStack()
-        }
+        detailsScreen (
+            onBackClick = { navHostController.popBackStack() },
+            paddingValues = paddingValues
+        )
         searchScreen(
             onBackClick = { navHostController.popBackStack() },
             onMovieClick = { movieId ->

@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +46,7 @@ fun MovieCard(
         Box(modifier = Modifier.height(200.dp)) { // Increased height for the image and icon
             LoadImage(movie.posterPath, modifier = Modifier.fillMaxSize())
             if (isFavourite) {
-                var isFilled by remember { mutableStateOf(false) } // State to track if the icon is filled
+                var isFilled by rememberSaveable { mutableStateOf(false) } // State to track if the icon is filled
                 Icon(
                     imageVector = if (isFilled) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                     contentDescription = "Favorite Icon",

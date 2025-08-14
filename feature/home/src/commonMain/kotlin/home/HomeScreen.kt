@@ -4,39 +4,27 @@ package home
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import coil3.compose.AsyncImage
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key.Companion.R
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.ImageLoader
 import com.gameZone.models.Movie
 import com.gameZone.models.TvShow
 import com.gamezone.ui.composables.LoadImage
@@ -89,7 +77,13 @@ fun HomeScreen(
             state.isLoading -> CircularProgressIndicator()
 
             else -> {
-                HomeContent(state, onMovieClick, onTvShowSaved, addFavourite)
+                HomeContent(
+                    state = state,
+                    onMovieClick = onMovieClick,
+                    onTvShowSaved = onTvShowSaved,
+                    addFavourite = addFavourite,
+                    paddingValues = paddingValues
+                )
             }
         }
     }
@@ -100,23 +94,22 @@ fun HomeContent(
     state: HomeUiState,
     onMovieClick: (Int) -> Unit,
     onTvShowSaved: (TvShow) -> Unit,
-    addFavourite: (Movie) -> Unit
+    addFavourite: (Movie) -> Unit,
+    paddingValues: PaddingValues
 ) {
-    LazyColumn {
+    LazyColumn(modifier = Modifier.fillMaxSize().padding(vertical = 8.dp, horizontal = 12.dp)) {
         item {
             Text(
                 text = "Popular movies",
                 color = Color.White,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 8.dp, horizontal = 8.dp)
             )
         }
         item {
             LazyRow(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(bottom = 24.dp)
             ) {
                 items(state.popularMovies) {
@@ -125,15 +118,14 @@ fun HomeContent(
                 }
             }
         }
-        // Title under the popular movies, for future Now Playing movies section
+
         item {
             Text(
                 text = "Top Rated movies",
                 color = Color.White,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 8.dp, horizontal = 8.dp)
             )
         }
         item {
@@ -148,10 +140,9 @@ fun HomeContent(
             Text(
                 text = "Popular TV Shows",
                 color = Color.White,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 8.dp, horizontal = 8.dp)
             )
             LazyRow {
                 items(state.popularTvShows) {

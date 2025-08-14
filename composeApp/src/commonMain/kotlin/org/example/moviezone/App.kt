@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -67,7 +68,7 @@ fun App() {
                                     contentDescription = it.title
                                 )
                             },
-                             label = { Text(it.title) },
+      /*                       label = { Text(it.title) },*/
                             selected = currentRoute == it.route,
                             onClick = {
                                 if (currentRoute != it.route) {
@@ -83,11 +84,11 @@ fun App() {
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = MaterialTheme.colorScheme.primary,
                                 unselectedIconColor = Color.White,
-                                selectedTextColor = MaterialTheme.colorScheme.onBackground,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
                                 unselectedTextColor = Color(0xFF9EB8A8),
                                 indicatorColor = Color.Transparent
                             ),
-                            modifier = Modifier.height(20.dp)
+                            modifier = Modifier.height(30.dp)
                         )
                     }
                 }

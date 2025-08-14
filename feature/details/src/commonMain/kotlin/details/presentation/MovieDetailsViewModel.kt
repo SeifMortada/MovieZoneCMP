@@ -2,7 +2,9 @@ package details.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gameZone.models.Movie
 import com.gameZone.models.MovieDetails
+import com.gameZone.usecase.AddMovieToFavorites
 import details.domain.GetMovieDetailsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +18,8 @@ data class MovieDetailsUiState(
 )
 
 class MovieDetailsViewModel(
-    private val getMovieDetailsUseCase: GetMovieDetailsUseCase
+    private val getMovieDetailsUseCase: GetMovieDetailsUseCase,
+    private val addMovieToFavorites: AddMovieToFavorites
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MovieDetailsUiState())
@@ -35,5 +38,21 @@ class MovieDetailsViewModel(
             _uiState.value = MovieDetailsUiState(error = e.message)
         }
         _uiState.update { it.copy(isLoading = false) }
+    }
+
+    fun addToFavorites(movieDetails: MovieDetails) {
+        viewModelScope.launch {
+            addMovieToFavorites(mapToMovie(movieDetails))
+        }
+    }
+    private fun mapToMovie(movieDetails: MovieDetails): Movie {
+        return Movie(
+            id = movieDetails.id,
+            title = movieDetails.title,
+            overview = movieDetails.overview,
+            posterPath = movieDetails.imageUrl,
+            releaseDate = movieDetails.releaseDate,
+            genres = movieDetails.genres.mapNotNull { it.id }
+        )
     }
 }
