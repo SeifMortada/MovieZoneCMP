@@ -1,8 +1,9 @@
 package favourites.di
 
 import favourites.presentation.FavouritesViewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val favouritesModule = module {
-    factory { FavouritesViewModel(get(),get()) }
+    viewModel { FavouritesViewModel(get(),get()) }
 }
