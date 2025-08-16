@@ -4,9 +4,11 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -23,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,40 +63,21 @@ private fun SearchScreen(
     onMovieClick: (Int) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Search") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.surface
-                )
-            )
-        },
-        containerColor = colors.background
-    ) { padding ->
+    Surface {
         Column(
-            Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .background(colors.background),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
+            Modifier.fillMaxSize()
+                .background(colors.background)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.Top
         ) {
 
             SearchBar(
                 query = uiState.query,
                 onQueryChange = { onSearchQueryChange(it) },
-                onClearQuery = { onSearchCleared() }
+                onClearQuery = { onSearchCleared() },
+                result = uiState.movies,
+                onMovieClick = { onSearchQueryChange(it.title) }
             )
-
             Spacer(Modifier.height(16.dp))
 
             // --- Recent Searches
@@ -134,45 +118,81 @@ private fun SearchScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar(query: String, onQueryChange: (String) -> Unit, onClearQuery: () -> Unit) {
-    TextField(
-        value = query,
-        onValueChange = onQueryChange,
-        leadingIcon = {
-            Icon(
-                Icons.Filled.Search,
-                contentDescription = "Search",
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.onBackground
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
+    result: List<Movie> = emptyList(),
+    onMovieClick: (Movie) -> Unit = {}
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    SearchBar(
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = query,
+                onQueryChange = {
+                    onQueryChange(it)
+                    isExpanded = true
+                },
+                onSearch = {
+                    onQueryChange(query)
+                    isExpanded = false
+                },
+                expanded = isExpanded,
+                onExpandedChange = { isExpanded = it },
+                placeholder = { Text("Search") },
+                leadingIcon = {
+                    Icon(
+                        Icons.Filled.Search,
+                        contentDescription = "Search",
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                },
+                trailingIcon = {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = {
+                            onClearQuery()
+                            isExpanded = false
+                        }) {
+                            Icon(Icons.Outlined.Clear, contentDescription = "Clear")
+                        }
+                    }
+                }
             )
         },
-        trailingIcon = {
-            if (query.isNotEmpty()) {
-                IconButton(onClick = onClearQuery) {
-                    Icon(Icons.Outlined.Clear, contentDescription = "Clear")
+        expanded = isExpanded,
+        onExpandedChange = { isExpanded = it },
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            items(result) { movie ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onMovieClick(movie)
+                            isExpanded = false
+                        }
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = movie.title,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
                 }
             }
-        },
-        placeholder = { Text("Search for anything .") },
-        shape = RoundedCornerShape(8.dp),
-        singleLine = true,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 16.dp),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFF29382E),
-            unfocusedContainerColor = Color(0xFF29382E),
-            disabledContainerColor = Color(0xFF29382E),
-            errorContainerColor = Color(0xFF29382E),
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent,
-            errorIndicatorColor = Color.Transparent,
-            cursorColor = MaterialTheme.colorScheme.primary
-        ),
-    )
+        }
+    }
 }
 
 @Composable
@@ -188,16 +208,13 @@ fun RecentSearchesRow(recentSearches: List<String>, onClick: (String) -> Unit) {
                 modifier = Modifier
                     .height(58.dp)
                     .width(174.dp)
-                    .padding(end = 8.dp, bottom = 8.dp)
-                    .background(Color(0xFF1C2621))
+                    .padding(end = 8.dp, bottom = 8.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color(0xFF1C2621),
+                    contentColor = Color.White
+                )
             ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    if (index == 0) Icon(
-                        imageVector = Icons.Filled.Repeat,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp).align(Alignment.CenterStart)
-                    )
                     Text(term, color = Color.White, fontSize = 14.sp)
                 }
             }
@@ -285,6 +302,6 @@ fun SearchScreenPreview() {
         SearchScreen(
             uiState = SearchUiState(
                 query = "asd"
-            ), {}, {}, {},{}) { }
+            ), {}, {}, {}, {}) { }
     }
 }

@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -62,6 +65,9 @@ private fun MovieDetailsScreen(
     val colors = MaterialTheme.colorScheme
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showSheet by remember { mutableStateOf(true) } // open by default
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -81,9 +87,9 @@ private fun MovieDetailsScreen(
                 )
             )
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }, // ✅ attach it here
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = colors.background,
-        modifier = Modifier.fillMaxSize().padding(paddingValues)
+        modifier = Modifier.fillMaxSize().padding(bottom = paddingValues.calculateBottomPadding())
     ) { padding ->
         when {
             uiState.isLoading -> Box(
@@ -109,14 +115,45 @@ private fun MovieDetailsScreen(
             }
 
             uiState.movieDetails != null -> {
-                MovieContent(
-                    details = uiState.movieDetails,
-                    scrollBehavior = scrollBehavior,
-                    modifier = Modifier.padding(padding),
+                ScreenContent(
+                    uiState = uiState,
                     addToFavoritesClicked = addToFavoritesClicked,
-                    snackbarHostState = snackbarHostState
+                    snackbarHostState = snackbarHostState,
+                    sheetState = sheetState,
+                    scrollBehavior = scrollBehavior,
+                    onDialogDismiss = onBackClick
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScreenContent(
+    uiState: MovieDetailsUiState,
+    addToFavoritesClicked: (MovieDetails) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    sheetState: SheetState,
+    onDialogDismiss: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
+) {
+    Column {
+        CollapsibleImage(imageUrl = uiState.movieDetails?.imageUrl)
+        ModalBottomSheet(
+            contentWindowInsets = { WindowInsets(0) },
+            onDismissRequest = onDialogDismiss,
+            sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.background,
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            MovieContent(
+                details = uiState.movieDetails!!,
+                scrollBehavior = scrollBehavior,
+                addToFavoritesClicked = addToFavoritesClicked,
+                snackbarHostState = snackbarHostState
+            )
+
         }
     }
 }
@@ -135,6 +172,7 @@ fun MovieContent(
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
 
+
     LazyColumn(
         modifier = modifier
             .nestedScroll(scrollBehavior.nestedScrollConnection)
@@ -142,9 +180,19 @@ fun MovieContent(
             .background(colors.background)
     ) {
         item {
-            CollapsibleImage(imageUrl = details.imageUrl)
+            Row {
+                Text(
+                    text = details.title,
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = colors.primary,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
         }
-        item { Spacer(Modifier.height(16.dp)) }
+        item {
+            MovieGenreRow(details.genres)
+        }
+        item { SectionDivider() }
         item { MovieOverviewSection(details.overview) }
         item { SectionDivider() }
         item { MovieStatsSection(details) }
@@ -164,6 +212,27 @@ fun MovieContent(
 }
 
 @Composable
+fun MovieGenreRow(genres: List<Genre>) {
+    LazyRow(modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp)) {
+        items(genres) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+                    .wrapContentSize()
+                    .clip(CircleShape)
+                    .padding(horizontal = 4.dp)
+                    .background(color = MaterialTheme.colorScheme.surface)
+            ) {
+                Text(
+                    it.name ?: "",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun CollapsibleImage(imageUrl: String?) {
     val initial = Color(0xFF1B1B1B)
     var backgroundColor by remember { mutableStateOf(initial) }
@@ -171,23 +240,17 @@ fun CollapsibleImage(imageUrl: String?) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
-            .background(backgroundColor),
+            .fillMaxHeight(0.7f)
+            .background(backgroundColor)
+            .clip(RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .aspectRatio(2f / 3f)
-                .clip(RoundedCornerShape(16.dp))
-        ) {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = null,
-                contentScale = ContentScale.FillHeight,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
@@ -346,6 +409,56 @@ fun ButtonRow(
             modifier = Modifier.weight(1f)
         ) {
             Text("Add to Favorites")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SlidingBottomSheetDemo() {
+    var showSheet by remember { mutableStateOf(false) }
+
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false // allows half-expanded state
+    )
+
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = { showSheet = true }) {
+                Icon(Icons.Default.Add, contentDescription = "Open Sheet")
+            }
+        }
+    ) { paddingValues ->
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Main Content")
+        }
+
+        if (showSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showSheet = false },
+                sheetState = sheetState
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        "This is a sliding bottom sheet!",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Button(onClick = { showSheet = false }) {
+                        Text("Close")
+                    }
+                }
+            }
         }
     }
 }

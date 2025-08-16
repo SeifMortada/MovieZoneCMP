@@ -88,7 +88,7 @@ class SearchViewModel(
     private fun updateRecentSearches(
         current: List<String>,
         newQuery: String,
-        max: Int = 3
+        max: Int = 2
     ): List<String> {
         val filtered = current.filterNot { it.equals(newQuery, ignoreCase = true) }
         return (listOf(newQuery) + filtered).take(max)

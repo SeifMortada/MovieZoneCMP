@@ -1,14 +1,11 @@
 package org.example.moviezone
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -17,84 +14,78 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import bottomNavItems
 import com.gamezone.ui.theme.MovieZoneTheme
-import favourites.navigation.FavouritesNav
-import home.navigation.HomeNavigation
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.example.moviezone.navigation.AppNavHost
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import search.navigation.SearchNav
-
-sealed class Item(val icon: ImageVector, val title: String, val route: Any) {
-    data object Home : Item(Icons.Filled.Home, "Home", HomeNavigation)
-    data object Search : Item(Icons.Filled.Search, "Search", SearchNav)
-    data object Favourites : Item(Icons.Filled.Favorite, "Favourites", FavouritesNav)
-}
-
-val items = listOf(Item.Home, Item.Search, Item.Favourites)
-
-private val logger = KotlinLogging.logger {}
-
 
 @Composable
 @Preview
 fun App() {
-    logger.debug { "Debugging: value = 123" }
-    logger.info { "Some info here" }
-    logger.error { "An error happened!" }
     val navHost = rememberNavController()
     val navBackStackEntry by navHost.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
     MovieZoneTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
-                NavigationBar(
-                    modifier = Modifier.fillMaxWidth().height(55.dp).background(
-                        MaterialTheme.colorScheme.background
-                    )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items.forEach {
-                        NavigationBarItem(
-                            icon = {
-                                Icon(
-                                    imageVector = it.icon,
-                                    contentDescription = it.title
-                                )
-                            },
-      /*                       label = { Text(it.title) },*/
-                            selected = currentRoute == it.route,
-                            onClick = {
-                                if (currentRoute != it.route) {
-                                    navHost.navigate(it.route) {
-                                        popUpTo(navHost.graph.startDestinationId) {
-                                            saveState = true
+                    NavigationBar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(55.dp)
+                            .clip(MaterialTheme.shapes.large)
+                            .shadow(8.dp, MaterialTheme.shapes.large)
+                            .background(MaterialTheme.colorScheme.surface),
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ) {
+                        bottomNavItems.forEach { destination ->
+                            NavigationBarItem(
+                                selected = currentRoute?.substringAfterLast(".") == destination.route.toString(),
+                                onClick = {
+                                    if (currentRoute?.substringAfterLast(".") != destination.route.toString()) {
+                                        navHost.navigate(destination.route) {
+                                            popUpTo(navHost.graph.startDestinationId) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
                                         }
-                                        launchSingleTop = true
-                                        restoreState = true
                                     }
-                                }
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = MaterialTheme.colorScheme.primary,
-                                unselectedIconColor = Color.White,
-                                selectedTextColor = MaterialTheme.colorScheme.primary,
-                                unselectedTextColor = Color(0xFF9EB8A8),
-                                indicatorColor = Color.Transparent
-                            ),
-                            modifier = Modifier.height(30.dp)
-                        )
+                                },
+                                icon = {
+                                    Icon(
+                                        destination.icon,
+                                        contentDescription = destination.label
+                                    )
+                                },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    indicatorColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            )
+                        }
                     }
                 }
-            }) { innerPadding ->
-            AppNavHost(navHost, innerPadding)
+            }
+        ) { contentPadding ->
+            AppNavHost(navHost, contentPadding)
         }
-
     }
 }
