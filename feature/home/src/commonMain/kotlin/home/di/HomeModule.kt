@@ -1,6 +1,6 @@
 package home.di
 
-import home.HomeViewModel
+import home.presentation.HomeViewModel
 import com.gameZone.usecase.AddMovieToFavorites
 import home.domain.usecase.GetPopularMoviesUseCase
 import home.domain.usecase.GetPopularTvShowsUseCase
@@ -21,6 +21,8 @@ val homeModule= module {
         getTopRatedMoviesUseCase = get(),
         getPopularTvShowsUseCase = get(),
         addTvShowToFavourites = get(),
-        addMovieToFavorites = get()
+        addMovieToFavorites = get(),
+        retrieveFavouriteMovies = get(),
+        removeMovieFromFavouritesUseCase = get()
     ) }
 }

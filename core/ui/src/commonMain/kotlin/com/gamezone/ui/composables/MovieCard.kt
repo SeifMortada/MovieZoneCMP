@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,7 +33,8 @@ fun MovieCard(
     movie: Movie,
     onClick: (Int) -> Unit = {},
     addFavourite: (Movie) -> Unit = {},
-    isFavourite: Boolean = false
+    removeFavourite: (Movie) -> Unit = {},
+    showFavoriteIcon: Boolean = false
 ) {
     Column(
         modifier = Modifier
@@ -43,21 +43,19 @@ fun MovieCard(
             .clickable { onClick(movie.id) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(modifier = Modifier.height(200.dp)) { // Increased height for the image and icon
+        Box(modifier = Modifier.height(200.dp)) {
             LoadImage(movie.posterPath, modifier = Modifier.fillMaxSize())
-            if (isFavourite) {
-                var isFilled by rememberSaveable { mutableStateOf(false) } // State to track if the icon is filled
+            if (showFavoriteIcon) {
                 Icon(
-                    imageVector = if (isFilled) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    imageVector = if (movie.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                     contentDescription = "Favorite Icon",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
-                        .align(Alignment.TopEnd) // Align icon to the top right of the Box
-                        .padding(8.dp) // Add some padding around the icon
-                        .size(24.dp) // Set the size of the icon
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .size(24.dp)
                         .clickable {
-                            addFavourite(movie)
-                            isFilled = !isFilled // Toggle the filled state on click
+                            if (movie.isFavorite) removeFavourite(movie) else addFavourite(movie)
                         }
                 )
             }
@@ -112,7 +110,7 @@ fun MovieCardPreview() {
             releaseDate = "2023-01-01",
             genres = listOf(12)
         ),
-        isFavourite = true
+        showFavoriteIcon = true
     )
 }
 

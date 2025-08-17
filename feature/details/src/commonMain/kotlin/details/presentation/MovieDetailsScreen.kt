@@ -1,5 +1,12 @@
 package details.presentation
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,15 +16,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -27,11 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.gameZone.models.Genre
-import com.gameZone.models.Movie
 import com.gameZone.models.MovieDetails
 import com.gameZone.models.ProductionCompany
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -44,12 +46,17 @@ fun MovieDetailsRoute(
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
     LaunchedEffect(movieId) {
-        viewModel.load(movieId)
+        viewModel.onAction(MovieDetailsAction.LoadMovie(movieId))
     }
+
     MovieDetailsScreen(
         uiState = uiState,
-        onBackClick = onBackClick,
-        addToFavoritesClicked = viewModel::addToFavorites,
+        onAction = { action ->
+            when (action) {
+                MovieDetailsAction.NavigateBack -> onBackClick()
+                else -> viewModel.onAction(action)
+            }
+        },
         paddingValues = paddingValues
     )
 }
@@ -58,23 +65,20 @@ fun MovieDetailsRoute(
 @Composable
 private fun MovieDetailsScreen(
     uiState: MovieDetailsUiState,
-    onBackClick: () -> Unit,
-    addToFavoritesClicked: (MovieDetails) -> Unit,
+    onAction: (MovieDetailsAction) -> Unit,
     paddingValues: PaddingValues
 ) {
     val colors = MaterialTheme.colorScheme
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
-    var showSheet by remember { mutableStateOf(true) } // open by default
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(uiState.movieDetails?.title ?: "") },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = { onAction(MovieDetailsAction.NavigateBack) }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBackIosNew,
                             contentDescription = "Back"
@@ -117,11 +121,10 @@ private fun MovieDetailsScreen(
             uiState.movieDetails != null -> {
                 ScreenContent(
                     uiState = uiState,
-                    addToFavoritesClicked = addToFavoritesClicked,
+                    onAction = onAction,
                     snackbarHostState = snackbarHostState,
                     sheetState = sheetState,
-                    scrollBehavior = scrollBehavior,
-                    onDialogDismiss = onBackClick
+                    scrollBehavior = scrollBehavior
                 )
             }
         }
@@ -132,25 +135,24 @@ private fun MovieDetailsScreen(
 @Composable
 fun ScreenContent(
     uiState: MovieDetailsUiState,
-    addToFavoritesClicked: (MovieDetails) -> Unit,
+    onAction: (MovieDetailsAction) -> Unit,
     snackbarHostState: SnackbarHostState,
     sheetState: SheetState,
-    onDialogDismiss: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     Column {
         CollapsibleImage(imageUrl = uiState.movieDetails?.imageUrl)
         ModalBottomSheet(
             contentWindowInsets = { WindowInsets(0) },
-            onDismissRequest = onDialogDismiss,
+            onDismissRequest = { onAction(MovieDetailsAction.NavigateBack) },
             sheetState = sheetState,
             containerColor = MaterialTheme.colorScheme.background,
             modifier = Modifier.fillMaxHeight()
         ) {
             MovieContent(
-                details = uiState.movieDetails!!,
+                uiState = uiState,
                 scrollBehavior = scrollBehavior,
-                addToFavoritesClicked = addToFavoritesClicked,
+                addToFavoritesClicked = {onAction(MovieDetailsAction.AddToFavorites(it))},
                 snackbarHostState = snackbarHostState
             )
 
@@ -162,7 +164,7 @@ fun ScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieContent(
-    details: MovieDetails,
+    uiState: MovieDetailsUiState,
     scrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
     addToFavoritesClicked: (MovieDetails) -> Unit,
@@ -171,7 +173,7 @@ fun MovieContent(
     val colors = MaterialTheme.colorScheme
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
-
+    val movieDetails = uiState.movieDetails ?: return
 
     LazyColumn(
         modifier = modifier
@@ -182,7 +184,7 @@ fun MovieContent(
         item {
             Row {
                 Text(
-                    text = details.title,
+                    text = movieDetails.title,
                     style = MaterialTheme.typography.headlineLarge,
                     color = colors.primary,
                     modifier = Modifier.padding(horizontal = 16.dp)
@@ -190,18 +192,19 @@ fun MovieContent(
             }
         }
         item {
-            MovieGenreRow(details.genres)
+            MovieGenreRow(movieDetails.genres)
         }
         item { SectionDivider() }
-        item { MovieOverviewSection(details.overview) }
+        item { MovieOverviewSection(movieDetails.overview) }
         item { SectionDivider() }
-        item { MovieStatsSection(details) }
+        item { MovieStatsSection(movieDetails) }
         item { SectionDivider() }
-        item { ProductionCompaniesRow(details.productionCompanies) }
+        item { ProductionCompaniesRow(movieDetails.productionCompanies) }
         item { SectionDivider() }
         item {
             ButtonRow(
-                movieDetails = details,
+                movieDetails = movieDetails,
+                isAddedToFavorite = uiState.isFavorite,
                 snackbarHostState = snackbarHostState,
                 uriHandler = uriHandler,
                 coroutineScope = coroutineScope,
@@ -373,6 +376,7 @@ fun SectionDivider() {
 @Composable
 fun ButtonRow(
     movieDetails: MovieDetails,
+    isAddedToFavorite: Boolean,
     snackbarHostState: SnackbarHostState,
     uriHandler: UriHandler,
     coroutineScope: CoroutineScope,
@@ -398,68 +402,27 @@ fun ButtonRow(
         ) {
             Text("Watch Now", color = MaterialTheme.colorScheme.onPrimary)
         }
-        OutlinedButton(
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            onClick = {
-                addToFavoritesClicked(movieDetails)
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar("Movie has been added to your favorites")
-                }
+        AnimatedContent(
+            targetState = isAddedToFavorite,
+            transitionSpec = {
+                (slideInHorizontally(tween(300)) + fadeIn(tween(300))) togetherWith
+                        (slideOutHorizontally(tween(300)) + fadeOut(tween(300)))
             },
-            modifier = Modifier.weight(1f)
-        ) {
-            Text("Add to Favorites")
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SlidingBottomSheetDemo() {
-    var showSheet by remember { mutableStateOf(false) }
-
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = false // allows half-expanded state
-    )
-
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showSheet = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Open Sheet")
-            }
-        }
-    ) { paddingValues ->
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("Main Content")
-        }
-
-        if (showSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showSheet = false },
-                sheetState = sheetState
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+            label = "FavButtonTransition"
+        ) { added ->
+            if (!added) {
+                OutlinedButton(
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                    onClick = {
+                        addToFavoritesClicked(movieDetails)
+                    },
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Text(
-                        "This is a sliding bottom sheet!",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    Button(onClick = { showSheet = false }) {
-                        Text("Close")
-                    }
+                    Text("Add to Favorites")
                 }
             }
         }
+
     }
 }
 
@@ -500,8 +463,7 @@ fun MovieDetailsScreenPreview() {
     )
     MovieDetailsScreen(
         uiState = MovieDetailsUiState(movieDetails = dummyMovie),
-        onBackClick = {},
+        onAction = {},
         paddingValues = PaddingValues(),
-        addToFavoritesClicked = {}
     )
 }

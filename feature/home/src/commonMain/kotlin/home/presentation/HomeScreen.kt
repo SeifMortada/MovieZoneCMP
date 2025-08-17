@@ -1,7 +1,6 @@
-package home
+package home.presentation
 
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,12 +11,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.background
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.getValue
 import com.gameZone.models.Movie
 import com.gameZone.models.TvShow
 import com.gamezone.ui.composables.LoadImage
@@ -40,13 +44,16 @@ fun HomeRoute(
     onMovieClick: (Int) -> Unit,
     paddingValues: PaddingValues
 ) {
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HomeScreen(
         state = uiState,
-        onMovieClick = onMovieClick,
-        onTvShowSaved = viewModel::saveTvShow,
-        addFavourite = viewModel::addMovieToFavourites,
-        paddingValues = paddingValues,
+        onAction = { action ->
+            when (action) {
+                is HomeActions.OnMovieClick -> onMovieClick(action.movieId)
+                else -> viewModel.onAction(action)
+            }
+        },
+        paddingValues = paddingValues
     )
 
 }
@@ -54,9 +61,7 @@ fun HomeRoute(
 @Composable
 fun HomeScreen(
     state: HomeUiState,
-    onMovieClick: (Int) -> Unit,
-    onTvShowSaved: (TvShow) -> Unit,
-    addFavourite: (Movie) -> Unit,
+    onAction: (HomeActions) -> Unit,
     paddingValues: PaddingValues
 ) {
     Column(
@@ -69,8 +74,22 @@ fun HomeScreen(
     ) {
         when {
             state.error != null -> {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Text(state.error)
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = state.error,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    ElevatedButton(onClick = { onAction(HomeActions.Retry) }) {
+                        Icon(Icons.Filled.Refresh, contentDescription = "Retry")
+                        Spacer(Modifier.width(8.dp))
+                        Text("Retry")
+                    }
                 }
             }
 
@@ -79,10 +98,7 @@ fun HomeScreen(
             else -> {
                 HomeContent(
                     state = state,
-                    onMovieClick = onMovieClick,
-                    onTvShowSaved = onTvShowSaved,
-                    addFavourite = addFavourite,
-                    paddingValues = paddingValues
+                    onAction = onAction
                 )
             }
         }
@@ -92,10 +108,7 @@ fun HomeScreen(
 @Composable
 fun HomeContent(
     state: HomeUiState,
-    onMovieClick: (Int) -> Unit,
-    onTvShowSaved: (TvShow) -> Unit,
-    addFavourite: (Movie) -> Unit,
-    paddingValues: PaddingValues
+    onAction: (HomeActions) -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize().padding(vertical = 8.dp, horizontal = 12.dp)) {
         item {
@@ -113,7 +126,19 @@ fun HomeContent(
                     .padding(bottom = 24.dp)
             ) {
                 items(state.popularMovies) {
-                    MovieCard(it, onMovieClick, isFavourite = true, addFavourite = addFavourite)
+                    MovieCard(
+                        movie = it,
+                        onClick = { movieId ->
+                            onAction(HomeActions.OnMovieClick(movieId))
+                        },
+                        showFavoriteIcon = true,
+                        addFavourite = { movie ->
+                            onAction(HomeActions.AddMovieToFavourites(movie))
+                        },
+                        removeFavourite = { movie ->
+                            onAction(HomeActions.RemoveMovieFromFavourites(movie))
+                        }
+                    )
                     Spacer(Modifier.width(12.dp))
                 }
             }
@@ -131,7 +156,7 @@ fun HomeContent(
         item {
             LazyRow {
                 items(state.topRatedMovies) {
-                    MovieCard(it, onMovieClick)
+                    MovieCard(it, { movieId -> onAction(HomeActions.OnMovieClick(movieId)) })
                     Spacer(Modifier.width(12.dp))
                 }
             }
@@ -146,7 +171,9 @@ fun HomeContent(
             )
             LazyRow {
                 items(state.popularTvShows) {
-                    PopularTvShowCard(it, onTvShowSaved)
+                    PopularTvShowCard(
+                        it,
+                        { tvShow -> onAction(HomeActions.AddTvShowToFavourites(tvShow)) })
                     Spacer(Modifier.width(12.dp))
                 }
             }
@@ -219,9 +246,7 @@ private fun CharacterScreenPreview() {
                 isLoading = false,
                 error = null
             ),
-            onMovieClick = {},
-            onTvShowSaved = {},
-            addFavourite = {},
+            onAction = {},
             paddingValues = PaddingValues(0.dp)
         )
     }

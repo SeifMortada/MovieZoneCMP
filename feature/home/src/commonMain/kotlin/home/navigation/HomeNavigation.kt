@@ -3,7 +3,7 @@ package home.navigation
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import home.HomeRoute
+import home.presentation.HomeRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
