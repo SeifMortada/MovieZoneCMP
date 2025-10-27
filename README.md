@@ -13,13 +13,13 @@ The app showcases a clean UI, smooth navigation, and up-to-date movie data with 
 Discover trending movies and shows with a clean, card-based layout.
 Browse popular movies, now playing titles, and trending series with seamless scrolling.
 
-<p align="center"> <img src="assets/home.png" width="260" alt="Home Screen" style="margin-right:10px;"/> <img src="assets/home2.png" width="260" alt="Home Screen" style="margin-right:10px;"/>
+<p align="center"> <img src="assets/home.png" width="260" alt="Home Screen" style="margin-right:10px;"/> <img src="assets/home2.png" width="260" alt="Home Screen" style="margin-right:10px;"/> </p>
 🎭 Details & Favorites
 
 Dive deep into detailed movie information — including cast, ratings, synopsis, and watch options.
 Add your favorite titles for quick access later.
 
-<p align="center"> <img src="assets/details1.png" width="220" alt="Movie Details 1" style="margin-right:10px;"/> <img src="assets/details2.png" width="220" alt="Movie Details 2" style="margin-right:10px;"/> <img src="assets/favorites.png" width="220" alt="Favorites Collection"/> </p>
+<p align="center"> <img src="assets/details1.png" width="220" alt="Movie Details 1" style="margin-right:10px;"/> <img src="assets/details2.png" width="220" alt="Movie Details 2" style="margin-right:10px;"/> <img src="assets/favourites.png" width="220" alt="Favorites Collection"/> </p>
 🔍 Search Experience
 
 Find exactly what you want using powerful search tools — complete with genre filters, recent searches, and instant results.
